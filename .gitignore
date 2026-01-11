@@ -1,3 +1,10 @@
+# Environment variables - NEVER COMMIT
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
 # Logs
 logs
 *.log
@@ -22,3 +29,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+CLAUDE.md
+
+# Secrets and sensitive data
+secret/
+secrets/
+
+# Temporary files
+supabase/.temp/
+.temp/
+nul

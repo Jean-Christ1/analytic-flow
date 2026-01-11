@@ -1,0 +1,2261 @@
+# ============================================================================
+# OpenAPI 3.1 Specification - APEX ML Platform
+# MLOps Control Plane v3
+# Author: Armand AMOUSSOU
+# Date: 2026-01-04
+# ============================================================================
+
+openapi: 3.1.0
+info:
+  title: APEX ML Platform API
+  description: |
+    Enterprise-grade MLOps Control Plane API for managing the complete ML lifecycle.
+
+    ## Features
+    - **Multi-tenancy**: Full tenant isolation with Row-Level Security
+    - **EU AI Act Compliance**: Built-in governance and compliance tracking
+    - **FinOps**: Cost management and carbon footprint tracking
+    - **Observability**: Integrated monitoring, logging, and tracing
+
+    ## Authentication
+    All endpoints require JWT authentication via Bearer token.
+    Multi-tenant requests must include the X-Tenant-ID header.
+
+    ## Rate Limiting
+    - Standard tier: 1000 requests/minute
+    - Enterprise tier: 10000 requests/minute
+  version: 3.0.0
+  contact:
+    name: API Support
+    email: api-support@apex-ml.io
+    url: https://docs.apex-ml.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  x-logo:
+    url: https://apex-ml.io/logo.png
+    altText: APEX ML Platform
+
+servers:
+  - url: https://api.apex-ml.io/api/v1
+    description: Production server
+  - url: https://staging-api.apex-ml.io/api/v1
+    description: Staging server
+  - url: http://localhost:8000/api/v1
+    description: Local development
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: Users
+    description: User management and profiles
+  - name: Projects
+    description: Project lifecycle management
+  - name: Experiments
+    description: ML experiment tracking
+  - name: Runs
+    description: Experiment run management
+  - name: Models
+    description: Model registry and versioning
+  - name: Deployments
+    description: Model deployment management
+  - name: Workspaces
+    description: Development workspace management
+  - name: Datasets
+    description: Dataset catalog and versioning
+  - name: Pipelines
+    description: ML pipeline orchestration
+  - name: Governance
+    description: AI governance and EU AI Act compliance
+  - name: FinOps
+    description: Cost management and budgets
+  - name: GreenOps
+    description: Carbon footprint tracking
+  - name: Observability
+    description: Monitoring and incident management
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ============================================================================
+  # AUTHENTICATION ENDPOINTS
+  # ============================================================================
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      description: Authenticate user and receive JWT tokens
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: User registration
+      description: Register a new user account
+      operationId: register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email already exists
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      description: Get new access token using refresh token
+      operationId: refreshToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/me:
+    get:
+      tags: [Authentication]
+      summary: Get current user
+      description: Get the authenticated user's profile
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+
+  # ============================================================================
+  # PROJECTS ENDPOINTS
+  # ============================================================================
+
+  /projects:
+    get:
+      tags: [Projects]
+      summary: List projects
+      description: Get paginated list of projects with filtering
+      operationId: listProjects
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, archived, suspended]
+        - name: favorites
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectList'
+    post:
+      tags: [Projects]
+      summary: Create project
+      description: Create a new ML project
+      operationId: createProject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreate'
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /projects/{projectId}:
+    get:
+      tags: [Projects]
+      summary: Get project
+      description: Get project details by ID
+      operationId: getProject
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdParam'
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Projects]
+      summary: Update project
+      description: Update project details
+      operationId: updateProject
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdate'
+      responses:
+        '200':
+          description: Project updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+    delete:
+      tags: [Projects]
+      summary: Delete project
+      description: Soft delete a project
+      operationId: deleteProject
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdParam'
+      responses:
+        '204':
+          description: Project deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============================================================================
+  # EXPERIMENTS ENDPOINTS
+  # ============================================================================
+
+  /experiments:
+    get:
+      tags: [Experiments]
+      summary: List experiments
+      description: Get paginated list of experiments
+      operationId: listExperiments
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: project_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ExperimentStatus'
+      responses:
+        '200':
+          description: List of experiments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentList'
+    post:
+      tags: [Experiments]
+      summary: Create experiment
+      description: Create a new experiment
+      operationId: createExperiment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExperimentCreate'
+      responses:
+        '201':
+          description: Experiment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+
+  /experiments/{experimentId}:
+    get:
+      tags: [Experiments]
+      summary: Get experiment
+      description: Get experiment details by ID
+      operationId: getExperiment
+      parameters:
+        - $ref: '#/components/parameters/ExperimentIdParam'
+      responses:
+        '200':
+          description: Experiment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experiment'
+
+  # ============================================================================
+  # MODELS ENDPOINTS
+  # ============================================================================
+
+  /models:
+    get:
+      tags: [Models]
+      summary: List models
+      description: Get paginated list of registered models
+      operationId: listModels
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: project_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: framework
+          in: query
+          schema:
+            type: string
+            enum: [pytorch, tensorflow, scikit-learn, xgboost, lightgbm, onnx]
+      responses:
+        '200':
+          description: List of models
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelList'
+    post:
+      tags: [Models]
+      summary: Register model
+      description: Register a new model version
+      operationId: registerModel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelCreate'
+      responses:
+        '201':
+          description: Model registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model'
+
+  /models/{modelId}:
+    get:
+      tags: [Models]
+      summary: Get model
+      description: Get model details by ID
+      operationId: getModel
+      parameters:
+        - $ref: '#/components/parameters/ModelIdParam'
+      responses:
+        '200':
+          description: Model details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model'
+
+  /models/{modelId}/versions:
+    get:
+      tags: [Models]
+      summary: List model versions
+      description: Get all versions of a model
+      operationId: listModelVersions
+      parameters:
+        - $ref: '#/components/parameters/ModelIdParam'
+      responses:
+        '200':
+          description: List of model versions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelVersionList'
+
+  # ============================================================================
+  # DEPLOYMENTS ENDPOINTS
+  # ============================================================================
+
+  /deployments:
+    get:
+      tags: [Deployments]
+      summary: List deployments
+      description: Get paginated list of model deployments
+      operationId: listDeployments
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/DeploymentStatus'
+        - name: environment
+          in: query
+          schema:
+            type: string
+            enum: [development, staging, production]
+      responses:
+        '200':
+          description: List of deployments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentList'
+    post:
+      tags: [Deployments]
+      summary: Create deployment
+      description: Deploy a model version
+      operationId: createDeployment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentCreate'
+      responses:
+        '201':
+          description: Deployment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+
+  /deployments/{deploymentId}:
+    get:
+      tags: [Deployments]
+      summary: Get deployment
+      description: Get deployment details
+      operationId: getDeployment
+      parameters:
+        - $ref: '#/components/parameters/DeploymentIdParam'
+      responses:
+        '200':
+          description: Deployment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+    delete:
+      tags: [Deployments]
+      summary: Delete deployment
+      description: Undeploy a model
+      operationId: deleteDeployment
+      parameters:
+        - $ref: '#/components/parameters/DeploymentIdParam'
+      responses:
+        '204':
+          description: Deployment deleted
+
+  /deployments/{deploymentId}/scale:
+    post:
+      tags: [Deployments]
+      summary: Scale deployment
+      description: Scale deployment replicas
+      operationId: scaleDeployment
+      parameters:
+        - $ref: '#/components/parameters/DeploymentIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [replicas]
+              properties:
+                replicas:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+      responses:
+        '200':
+          description: Deployment scaled
+
+  # ============================================================================
+  # AI GOVERNANCE ENDPOINTS
+  # ============================================================================
+
+  /governance/ai-systems:
+    get:
+      tags: [Governance]
+      summary: List AI systems
+      description: Get registered AI systems for EU AI Act compliance
+      operationId: listAISystems
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: risk_class
+          in: query
+          schema:
+            $ref: '#/components/schemas/RiskClass'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, deprecated, under_review]
+      responses:
+        '200':
+          description: List of AI systems
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AISystemList'
+    post:
+      tags: [Governance]
+      summary: Register AI system
+      description: Register a new AI system for compliance tracking
+      operationId: registerAISystem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AISystemCreate'
+      responses:
+        '201':
+          description: AI system registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AISystem'
+
+  /governance/ai-systems/{aiSystemId}:
+    get:
+      tags: [Governance]
+      summary: Get AI system
+      description: Get AI system details
+      operationId: getAISystem
+      parameters:
+        - $ref: '#/components/parameters/AISystemIdParam'
+      responses:
+        '200':
+          description: AI system details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AISystem'
+
+  /governance/model-cards:
+    get:
+      tags: [Governance]
+      summary: List model cards
+      description: Get model cards for transparency and documentation
+      operationId: listModelCards
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: List of model cards
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelCardList'
+
+  /governance/risk-assessments:
+    get:
+      tags: [Governance]
+      summary: List risk assessments
+      description: Get risk assessments for AI systems
+      operationId: listRiskAssessments
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: ai_system_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, pending_review, approved, rejected]
+      responses:
+        '200':
+          description: List of risk assessments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskAssessmentList'
+    post:
+      tags: [Governance]
+      summary: Create risk assessment
+      description: Create a new risk assessment
+      operationId: createRiskAssessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RiskAssessmentCreate'
+      responses:
+        '201':
+          description: Risk assessment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskAssessment'
+
+  /governance/compliance/eu-ai-act:
+    get:
+      tags: [Governance]
+      summary: Get EU AI Act compliance status
+      description: Get overall EU AI Act compliance summary
+      operationId: getEUAIActCompliance
+      responses:
+        '200':
+          description: Compliance status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EUAIActComplianceStatus'
+
+  /governance/incidents:
+    get:
+      tags: [Governance]
+      summary: List governance incidents
+      description: Get AI-related governance incidents
+      operationId: listGovernanceIncidents
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: severity
+          in: query
+          schema:
+            $ref: '#/components/schemas/IncidentSeverity'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, investigating, resolved, closed]
+      responses:
+        '200':
+          description: List of incidents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GovernanceIncidentList'
+    post:
+      tags: [Governance]
+      summary: Report incident
+      description: Report a new governance incident
+      operationId: reportGovernanceIncident
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GovernanceIncidentCreate'
+      responses:
+        '201':
+          description: Incident reported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GovernanceIncident'
+
+  # ============================================================================
+  # FINOPS ENDPOINTS
+  # ============================================================================
+
+  /finops/billing-accounts:
+    get:
+      tags: [FinOps]
+      summary: List billing accounts
+      description: Get connected cloud billing accounts
+      operationId: listBillingAccounts
+      responses:
+        '200':
+          description: List of billing accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingAccountList'
+    post:
+      tags: [FinOps]
+      summary: Add billing account
+      description: Connect a new cloud billing account
+      operationId: addBillingAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillingAccountCreate'
+      responses:
+        '201':
+          description: Billing account added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingAccount'
+
+  /finops/costs:
+    get:
+      tags: [FinOps]
+      summary: Get cost records
+      description: Get detailed cost records with filtering
+      operationId: getCostRecords
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: project_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: service
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Cost records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostRecordList'
+
+  /finops/costs/summary:
+    get:
+      tags: [FinOps]
+      summary: Get cost summary
+      description: Get aggregated cost summary
+      operationId: getCostSummary
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: group_by
+          in: query
+          schema:
+            type: string
+            enum: [project, service, resource_type, day, week, month]
+      responses:
+        '200':
+          description: Cost summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostSummary'
+
+  /finops/budgets:
+    get:
+      tags: [FinOps]
+      summary: List budgets
+      description: Get all configured budgets
+      operationId: listBudgets
+      responses:
+        '200':
+          description: List of budgets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetList'
+    post:
+      tags: [FinOps]
+      summary: Create budget
+      description: Create a new budget
+      operationId: createBudget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetCreate'
+      responses:
+        '201':
+          description: Budget created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+
+  /finops/budgets/{budgetId}:
+    get:
+      tags: [FinOps]
+      summary: Get budget
+      description: Get budget details with usage
+      operationId: getBudget
+      parameters:
+        - $ref: '#/components/parameters/BudgetIdParam'
+      responses:
+        '200':
+          description: Budget details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetWithUsage'
+
+  # ============================================================================
+  # GREENOPS ENDPOINTS
+  # ============================================================================
+
+  /greenops/carbon:
+    get:
+      tags: [GreenOps]
+      summary: Get carbon records
+      description: Get carbon emission records
+      operationId: getCarbonRecords
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: project_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Carbon records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarbonRecordList'
+
+  /greenops/carbon/summary:
+    get:
+      tags: [GreenOps]
+      summary: Get carbon summary
+      description: Get aggregated carbon footprint summary
+      operationId: getCarbonSummary
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Carbon summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarbonSummary'
+
+  # ============================================================================
+  # OBSERVABILITY ENDPOINTS
+  # ============================================================================
+
+  /observability/backends:
+    get:
+      tags: [Observability]
+      summary: List observability backends
+      description: Get configured observability backends
+      operationId: listObservabilityBackends
+      responses:
+        '200':
+          description: List of backends
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservabilityBackendList'
+    post:
+      tags: [Observability]
+      summary: Add observability backend
+      description: Configure a new observability backend
+      operationId: addObservabilityBackend
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObservabilityBackendCreate'
+      responses:
+        '201':
+          description: Backend added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservabilityBackend'
+
+  /observability/incidents:
+    get:
+      tags: [Observability]
+      summary: List incidents
+      description: Get observability incidents
+      operationId: listIncidents
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: severity
+          in: query
+          schema:
+            $ref: '#/components/schemas/IncidentSeverity'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, acknowledged, investigating, resolved, closed]
+      responses:
+        '200':
+          description: List of incidents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentList'
+    post:
+      tags: [Observability]
+      summary: Create incident
+      description: Create a new incident
+      operationId: createIncident
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentCreate'
+      responses:
+        '201':
+          description: Incident created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+
+  /observability/incidents/{incidentId}:
+    get:
+      tags: [Observability]
+      summary: Get incident
+      description: Get incident details
+      operationId: getIncident
+      parameters:
+        - $ref: '#/components/parameters/IncidentIdParam'
+      responses:
+        '200':
+          description: Incident details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+
+  /observability/incidents/{incidentId}/acknowledge:
+    post:
+      tags: [Observability]
+      summary: Acknowledge incident
+      description: Acknowledge an incident
+      operationId: acknowledgeIncident
+      parameters:
+        - $ref: '#/components/parameters/IncidentIdParam'
+      responses:
+        '200':
+          description: Incident acknowledged
+
+  /observability/incidents/{incidentId}/resolve:
+    post:
+      tags: [Observability]
+      summary: Resolve incident
+      description: Resolve an incident with resolution
+      operationId: resolveIncident
+      parameters:
+        - $ref: '#/components/parameters/IncidentIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [resolution]
+              properties:
+                resolution:
+                  type: string
+      responses:
+        '200':
+          description: Incident resolved
+
+  /observability/sla-policies:
+    get:
+      tags: [Observability]
+      summary: List SLA policies
+      description: Get configured SLA policies
+      operationId: listSLAPolicies
+      responses:
+        '200':
+          description: List of SLA policies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SLAPolicyList'
+
+# ============================================================================
+# COMPONENTS
+# ============================================================================
+
+components:
+  # --------------------------------------------------------------------------
+  # Security Schemes
+  # --------------------------------------------------------------------------
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token
+
+  # --------------------------------------------------------------------------
+  # Parameters
+  # --------------------------------------------------------------------------
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      description: Page number (1-indexed)
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      description: Items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    SearchParam:
+      name: search
+      in: query
+      description: Search term
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 100
+
+    ProjectIdParam:
+      name: projectId
+      in: path
+      required: true
+      description: Project UUID
+      schema:
+        type: string
+        format: uuid
+
+    ExperimentIdParam:
+      name: experimentId
+      in: path
+      required: true
+      description: Experiment UUID
+      schema:
+        type: string
+        format: uuid
+
+    ModelIdParam:
+      name: modelId
+      in: path
+      required: true
+      description: Model UUID
+      schema:
+        type: string
+        format: uuid
+
+    DeploymentIdParam:
+      name: deploymentId
+      in: path
+      required: true
+      description: Deployment UUID
+      schema:
+        type: string
+        format: uuid
+
+    AISystemIdParam:
+      name: aiSystemId
+      in: path
+      required: true
+      description: AI System UUID
+      schema:
+        type: string
+        format: uuid
+
+    BudgetIdParam:
+      name: budgetId
+      in: path
+      required: true
+      description: Budget UUID
+      schema:
+        type: string
+        format: uuid
+
+    IncidentIdParam:
+      name: incidentId
+      in: path
+      required: true
+      description: Incident UUID
+      schema:
+        type: string
+        format: uuid
+
+  # --------------------------------------------------------------------------
+  # Responses
+  # --------------------------------------------------------------------------
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    RateLimited:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+
+  # --------------------------------------------------------------------------
+  # Schemas
+  # --------------------------------------------------------------------------
+  schemas:
+    # Common Schemas
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+    PaginationMeta:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        total_pages:
+          type: integer
+
+    # Authentication Schemas
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        expires_in:
+          type: integer
+        user:
+          $ref: '#/components/schemas/User'
+
+    RegisterRequest:
+      type: object
+      required: [email, password, full_name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        full_name:
+          type: string
+          minLength: 2
+
+    RegisterResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        confirmation_required:
+          type: boolean
+
+    TokenPair:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        expires_in:
+          type: integer
+
+    # User Schemas
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+        created_at:
+          type: string
+          format: date-time
+
+    UserProfile:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            roles:
+              type: array
+              items:
+                type: string
+            permissions:
+              type: array
+              items:
+                type: string
+            tenant_id:
+              type: string
+              format: uuid
+
+    # Project Schemas
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [active, archived, suspended]
+        team_members:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMember'
+        model_count:
+          type: integer
+        experiment_count:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ProjectCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 1000
+        tags:
+          type: array
+          items:
+            type: string
+
+    ProjectUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [active, archived]
+        tags:
+          type: array
+          items:
+            type: string
+
+    ProjectList:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Project'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    TeamMember:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+        role:
+          type: string
+          enum: [owner, admin, member, viewer]
+
+    # Experiment Schemas
+    ExperimentStatus:
+      type: string
+      enum: [queued, running, completed, failed, cancelled]
+
+    Experiment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/ExperimentStatus'
+        metrics:
+          type: object
+          additionalProperties:
+            type: number
+        hyperparameters:
+          type: object
+        duration_seconds:
+          type: integer
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+
+    ExperimentCreate:
+      type: object
+      required: [name, project_id]
+      properties:
+        name:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    ExperimentList:
+      type: object
+      properties:
+        experiments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Experiment'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    # Model Schemas
+    Model:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+        model_type:
+          type: string
+        framework:
+          type: string
+        latest_version:
+          type: string
+        stage:
+          type: string
+          enum: [development, staging, production, archived]
+        created_at:
+          type: string
+          format: date-time
+
+    ModelCreate:
+      type: object
+      required: [name, project_id]
+      properties:
+        name:
+          type: string
+        project_id:
+          type: string
+          format: uuid
+        model_type:
+          type: string
+        framework:
+          type: string
+
+    ModelList:
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/Model'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    ModelVersionList:
+      type: object
+      properties:
+        versions:
+          type: array
+          items:
+            type: object
+            properties:
+              version:
+                type: string
+              stage:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+
+    # Deployment Schemas
+    DeploymentStatus:
+      type: string
+      enum: [pending, deploying, running, failed, stopped]
+
+    Deployment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        model_id:
+          type: string
+          format: uuid
+        model_version:
+          type: string
+        environment:
+          type: string
+          enum: [development, staging, production]
+        status:
+          $ref: '#/components/schemas/DeploymentStatus'
+        endpoint_url:
+          type: string
+          format: uri
+        replicas:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    DeploymentCreate:
+      type: object
+      required: [name, model_id, model_version, environment]
+      properties:
+        name:
+          type: string
+        model_id:
+          type: string
+          format: uuid
+        model_version:
+          type: string
+        environment:
+          type: string
+          enum: [development, staging, production]
+        replicas:
+          type: integer
+          default: 1
+
+    DeploymentList:
+      type: object
+      properties:
+        deployments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Deployment'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    # Governance Schemas
+    RiskClass:
+      type: string
+      enum: [unacceptable, high_risk, limited_risk, minimal_risk]
+
+    IncidentSeverity:
+      type: string
+      enum: [critical, high, medium, low]
+
+    AISystem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        system_type:
+          type: string
+        risk_class:
+          $ref: '#/components/schemas/RiskClass'
+        version:
+          type: string
+        status:
+          type: string
+          enum: [active, deprecated, under_review]
+        purpose:
+          type: string
+        intended_use:
+          type: string
+        compliance_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        created_at:
+          type: string
+          format: date-time
+
+    AISystemCreate:
+      type: object
+      required: [name, system_type, risk_class]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        system_type:
+          type: string
+        risk_class:
+          $ref: '#/components/schemas/RiskClass'
+        purpose:
+          type: string
+        intended_use:
+          type: string
+
+    AISystemList:
+      type: object
+      properties:
+        ai_systems:
+          type: array
+          items:
+            $ref: '#/components/schemas/AISystem'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    ModelCard:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        model_id:
+          type: string
+          format: uuid
+        version:
+          type: string
+        status:
+          type: string
+          enum: [draft, published, deprecated]
+        model_details:
+          type: object
+        intended_use:
+          type: object
+        training_data:
+          type: object
+        ethical_considerations:
+          type: object
+
+    ModelCardList:
+      type: object
+      properties:
+        model_cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelCard'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    RiskAssessment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ai_system_id:
+          type: string
+          format: uuid
+        assessment_type:
+          type: string
+        risk_level:
+          type: string
+          enum: [low, medium, high, critical]
+        status:
+          type: string
+          enum: [draft, pending_review, approved, rejected]
+        risk_factors:
+          type: object
+        mitigation_measures:
+          type: object
+        assessment_date:
+          type: string
+          format: date
+
+    RiskAssessmentCreate:
+      type: object
+      required: [ai_system_id, assessment_type]
+      properties:
+        ai_system_id:
+          type: string
+          format: uuid
+        assessment_type:
+          type: string
+        risk_factors:
+          type: object
+        mitigation_measures:
+          type: object
+
+    RiskAssessmentList:
+      type: object
+      properties:
+        risk_assessments:
+          type: array
+          items:
+            $ref: '#/components/schemas/RiskAssessment'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    EUAIActComplianceStatus:
+      type: object
+      properties:
+        overall_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        by_article:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              compliant:
+                type: boolean
+              score:
+                type: number
+              gaps:
+                type: array
+                items:
+                  type: string
+        high_risk_systems:
+          type: integer
+        pending_assessments:
+          type: integer
+        last_audit_date:
+          type: string
+          format: date
+
+    GovernanceIncident:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        ai_system_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        incident_type:
+          type: string
+        severity:
+          $ref: '#/components/schemas/IncidentSeverity'
+        status:
+          type: string
+          enum: [open, investigating, resolved, closed]
+        reported_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+
+    GovernanceIncidentCreate:
+      type: object
+      required: [ai_system_id, title, severity]
+      properties:
+        ai_system_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        incident_type:
+          type: string
+        severity:
+          $ref: '#/components/schemas/IncidentSeverity'
+
+    GovernanceIncidentList:
+      type: object
+      properties:
+        incidents:
+          type: array
+          items:
+            $ref: '#/components/schemas/GovernanceIncident'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    # FinOps Schemas
+    BillingAccount:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        provider:
+          type: string
+          enum: [aws, gcp, azure]
+        account_id:
+          type: string
+        account_name:
+          type: string
+        status:
+          type: string
+          enum: [active, suspended, error]
+        is_primary:
+          type: boolean
+        last_sync_at:
+          type: string
+          format: date-time
+
+    BillingAccountCreate:
+      type: object
+      required: [provider, account_id, account_name]
+      properties:
+        provider:
+          type: string
+          enum: [aws, gcp, azure]
+        account_id:
+          type: string
+        account_name:
+          type: string
+        credentials:
+          type: object
+
+    BillingAccountList:
+      type: object
+      properties:
+        billing_accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/BillingAccount'
+
+    CostRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        billing_account_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        service:
+          type: string
+        resource_type:
+          type: string
+        cost_amount:
+          type: number
+        currency:
+          type: string
+        usage_date:
+          type: string
+          format: date
+
+    CostRecordList:
+      type: object
+      properties:
+        cost_records:
+          type: array
+          items:
+            $ref: '#/components/schemas/CostRecord'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    CostSummary:
+      type: object
+      properties:
+        total_cost:
+          type: number
+        currency:
+          type: string
+        period:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date
+            end:
+              type: string
+              format: date
+        by_service:
+          type: object
+          additionalProperties:
+            type: number
+        by_project:
+          type: object
+          additionalProperties:
+            type: number
+        trend:
+          type: object
+          properties:
+            change_percent:
+              type: number
+            direction:
+              type: string
+              enum: [up, down, stable]
+
+    Budget:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        budget_type:
+          type: string
+          enum: [project, team, tenant]
+        amount:
+          type: number
+        currency:
+          type: string
+        period:
+          type: string
+          enum: [monthly, quarterly, yearly]
+        status:
+          type: string
+          enum: [active, exceeded, paused]
+
+    BudgetCreate:
+      type: object
+      required: [name, budget_type, amount, period]
+      properties:
+        name:
+          type: string
+        budget_type:
+          type: string
+          enum: [project, team, tenant]
+        scope_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          default: USD
+        period:
+          type: string
+          enum: [monthly, quarterly, yearly]
+        alert_thresholds:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+            maximum: 100
+
+    BudgetWithUsage:
+      allOf:
+        - $ref: '#/components/schemas/Budget'
+        - type: object
+          properties:
+            current_spend:
+              type: number
+            usage_percentage:
+              type: number
+            remaining:
+              type: number
+            forecasted_spend:
+              type: number
+
+    BudgetList:
+      type: object
+      properties:
+        budgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Budget'
+
+    # GreenOps Schemas
+    CarbonRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        resource_type:
+          type: string
+        region:
+          type: string
+        energy_kwh:
+          type: number
+        carbon_kg:
+          type: number
+        measurement_date:
+          type: string
+          format: date
+
+    CarbonRecordList:
+      type: object
+      properties:
+        carbon_records:
+          type: array
+          items:
+            $ref: '#/components/schemas/CarbonRecord'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    CarbonSummary:
+      type: object
+      properties:
+        total_carbon_kg:
+          type: number
+        total_energy_kwh:
+          type: number
+        period:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date
+            end:
+              type: string
+              format: date
+        by_region:
+          type: object
+          additionalProperties:
+            type: number
+        by_resource_type:
+          type: object
+          additionalProperties:
+            type: number
+        trend:
+          type: object
+          properties:
+            change_percent:
+              type: number
+            direction:
+              type: string
+              enum: [up, down, stable]
+
+    # Observability Schemas
+    ObservabilityBackend:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        kind:
+          type: string
+          enum: [grafana, prometheus, loki, jaeger, datadog, newrelic]
+        obs_type:
+          type: string
+          enum: [metrics, logs, traces]
+        base_url:
+          type: string
+          format: uri
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        is_default:
+          type: boolean
+
+    ObservabilityBackendCreate:
+      type: object
+      required: [name, kind, obs_type, base_url]
+      properties:
+        name:
+          type: string
+        kind:
+          type: string
+          enum: [grafana, prometheus, loki, jaeger, datadog, newrelic]
+        obs_type:
+          type: string
+          enum: [metrics, logs, traces]
+        base_url:
+          type: string
+          format: uri
+        api_key:
+          type: string
+        is_default:
+          type: boolean
+          default: false
+
+    ObservabilityBackendList:
+      type: object
+      properties:
+        backends:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObservabilityBackend'
+
+    Incident:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        severity:
+          $ref: '#/components/schemas/IncidentSeverity'
+        status:
+          type: string
+          enum: [open, acknowledged, investigating, resolved, closed]
+        source:
+          type: string
+        assigned_to:
+          type: string
+          format: uuid
+        acknowledged_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+
+    IncidentCreate:
+      type: object
+      required: [title, severity]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        severity:
+          $ref: '#/components/schemas/IncidentSeverity'
+        project_id:
+          type: string
+          format: uuid
+
+    IncidentList:
+      type: object
+      properties:
+        incidents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Incident'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    SLAPolicy:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        scope_type:
+          type: string
+          enum: [tenant, project, deployment]
+        targets:
+          type: object
+          properties:
+            availability:
+              type: object
+              properties:
+                target:
+                  type: number
+                measurement_window:
+                  type: string
+            latency_p99:
+              type: object
+              properties:
+                target:
+                  type: number
+                unit:
+                  type: string
+        is_active:
+          type: boolean
+
+    SLAPolicyList:
+      type: object
+      properties:
+        sla_policies:
+          type: array
+          items:
+            $ref: '#/components/schemas/SLAPolicy'
+
+# ============================================================================
+# TODO: Additional endpoints to implement
+# ============================================================================
+# TODO: Add /workspaces endpoints for development environments
+# TODO: Add /datasets endpoints for data catalog
+# TODO: Add /pipelines endpoints for ML pipelines
+# TODO: Add /features endpoints for feature store
+# TODO: Add /audit-logs endpoints for compliance auditing
+# TODO: Add /webhooks endpoints for event notifications
+# TODO: Add /api-keys endpoints for programmatic access
+# TODO: Add WebSocket endpoints for real-time updates
+# TODO: Add batch operation endpoints for bulk actions
+# TODO: Add export/import endpoints for data portability

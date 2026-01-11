@@ -1,0 +1,34 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "APEX ML Platform (via PgBouncer)",
+      "Group": "APEX",
+      "Host": "pgbouncer",
+      "Port": 6432,
+      "MaintenanceDB": "apex_ml_platform",
+      "Username": "postgres",
+      "SSLMode": "prefer",
+      "Comment": "Connection pooled access to APEX ML Platform database"
+    },
+    "2": {
+      "Name": "APEX ML Platform (Direct)",
+      "Group": "APEX",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "apex_ml_platform",
+      "Username": "postgres",
+      "SSLMode": "prefer",
+      "Comment": "Direct connection to PostgreSQL (for admin tasks)"
+    },
+    "3": {
+      "Name": "Keycloak Database",
+      "Group": "APEX",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "keycloak",
+      "Username": "postgres",
+      "SSLMode": "prefer",
+      "Comment": "Keycloak authentication database"
+    }
+  }
+}
