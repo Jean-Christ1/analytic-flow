@@ -209,7 +209,7 @@ export const useAuditLogs = (options: ListQueryOptions = {}) => {
     queryFn: async () => {
       let query = (supabase as any)
         .from('audit_event')
-        .select('*, user:profile(id, email, full_name)', { count: 'exact' });
+        .select('*', { count: 'exact' });
 
       // Apply filters
       filters.forEach(filter => {
@@ -251,7 +251,7 @@ export const useInfiniteAuditLogs = (options: Omit<ListQueryOptions, 'pagination
     queryFn: async ({ pageParam = 0 }) => {
       let query = (supabase as any)
         .from('audit_event')
-        .select('*, user:profile(id, email, full_name)', { count: 'exact' });
+        .select('*', { count: 'exact' });
 
       filters.forEach(filter => {
         query = query.filter(filter.column, filter.operator, filter.value);
@@ -340,7 +340,7 @@ export const useAuditLogsByResource = (
     queryFn: async () => {
       const { data, error, count } = await (supabase as any)
         .from('audit_event')
-        .select('*, user:profile(id, email, full_name)', { count: 'exact' })
+        .select('*', { count: 'exact' })
         .eq('resource_type', resourceType)
         .eq('resource_id', resourceId)
         .order('created_at', { ascending: false })
@@ -366,7 +366,7 @@ export const useAuditLogsByAction = (action: AuditAction, pagination?: Paginatio
     queryFn: async () => {
       const { data, error, count } = await (supabase as any)
         .from('audit_event')
-        .select('*, user:profile(id, email, full_name)', { count: 'exact' })
+        .select('*', { count: 'exact' })
         .eq('action', action)
         .order('created_at', { ascending: false })
         .range(offset, offset + pageSize - 1);
@@ -390,7 +390,7 @@ export const useSearchAuditLogs = (filters: AuditLogFilters, pagination?: Pagina
     queryFn: async () => {
       let query = (supabase as any)
         .from('audit_event')
-        .select('*, user:profile(id, email, full_name)', { count: 'exact' });
+        .select('*', { count: 'exact' });
 
       if (filters.userId) {
         query = query.eq('user_id', filters.userId);
@@ -403,9 +403,6 @@ export const useSearchAuditLogs = (filters: AuditLogFilters, pagination?: Pagina
       }
       if (filters.resourceId) {
         query = query.eq('resource_id', filters.resourceId);
-      }
-      if (filters.severity) {
-        query = query.eq('severity', filters.severity);
       }
       if (filters.status) {
         query = query.eq('status', filters.status);
@@ -478,7 +475,7 @@ export const useSecurityAuditLogs = (pagination?: PaginationParams) => {
     queryFn: async () => {
       const { data, error, count } = await (supabase as any)
         .from('audit_event')
-        .select('*, user:profile(id, email, full_name)', { count: 'exact' })
+        .select('*', { count: 'exact' })
         .in('action', securityActions)
         .order('created_at', { ascending: false })
         .range(offset, offset + pageSize - 1);
@@ -502,7 +499,7 @@ export const useFailedOperations = (pagination?: PaginationParams) => {
     queryFn: async () => {
       const { data, error, count } = await (supabase as any)
         .from('audit_event')
-        .select('*, user:profile(id, email, full_name)', { count: 'exact' })
+        .select('*', { count: 'exact' })
         .eq('status', 'failure')
         .order('created_at', { ascending: false })
         .range(offset, offset + pageSize - 1);
@@ -524,7 +521,7 @@ export const useAuditStats = (tenantId: string, days: number = 30) => {
     queryFn: async () => {
       const { data, error, count } = await (supabase as any)
         .from('audit_event')
-        .select('action, severity, resource_type, status', { count: 'exact' })
+        .select('action, resource_type, status', { count: 'exact' })
         .eq('tenant_id', tenantId)
         .gte('created_at', startDate);
 
@@ -541,8 +538,8 @@ export const useAuditStats = (tenantId: string, days: number = 30) => {
       (data || []).forEach(log => {
         stats.byAction[log.action as AuditAction] =
           (stats.byAction[log.action as AuditAction] || 0) + 1;
-        stats.bySeverity[log.severity as AuditSeverity] =
-          (stats.bySeverity[log.severity as AuditSeverity] || 0) + 1;
+        const derivedSeverity: AuditSeverity = log.status === 'failure' ? 'error' : 'info';
+        stats.bySeverity[derivedSeverity] = (stats.bySeverity[derivedSeverity] || 0) + 1;
         stats.byResourceType[log.resource_type as AuditResourceType] =
           (stats.byResourceType[log.resource_type as AuditResourceType] || 0) + 1;
         stats.byStatus[log.status as 'success' | 'failure']++;
@@ -558,6 +555,27 @@ export const useAuditStats = (tenantId: string, days: number = 30) => {
 // MUTATION HOOKS
 // ============================================================================
 
+// Map the app-level audit log shape onto the `audit_event` table columns.
+const toAuditEventRow = (log: Record<string, unknown>) => ({
+  tenant_id: log.tenant_id || null,
+  actor_type: 'user',
+  actor_id: log.user_id ?? null,
+  action: log.action,
+  resource_type: log.resource_type,
+  resource_id: log.resource_id ?? null,
+  resource_name: log.resource_name ?? null,
+  ip: log.ip_address ?? null,
+  user_agent: log.user_agent ?? null,
+  status: log.status ?? 'success',
+  error_message: log.error_message ?? null,
+  payload: {
+    description: log.description ?? null,
+    severity: log.severity ?? 'info',
+    changes: log.changes ?? [],
+    metadata: log.metadata ?? {},
+  },
+});
+
 /**
  * Create audit log entry
  */
@@ -570,7 +588,7 @@ export const useCreateAuditLog = (
     mutationFn: async (log: AuditLogInsert) => {
       const { data, error } = await (supabase as any)
         .from('audit_event')
-        .insert(log)
+        .insert(toAuditEventRow(log as unknown as Record<string, unknown>))
         .select()
         .single();
 
@@ -599,7 +617,7 @@ export const useBatchCreateAuditLogs = (
     mutationFn: async (logs: AuditLogInsert[]) => {
       const { data, error } = await (supabase as any)
         .from('audit_event')
-        .insert(logs)
+        .insert((logs as unknown as Record<string, unknown>[]).map(toAuditEventRow))
         .select();
 
       if (error) throw error;
