@@ -207,8 +207,8 @@ export const useAuditLogs = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: auditLogKeys.list({ pagination, sort, filters }),
     queryFn: async () => {
-      let query = supabase
-        .from('audit_log')
+      let query = (supabase as any)
+        .from('audit_event')
         .select('*, user:profile(id, email, full_name)', { count: 'exact' });
 
       // Apply filters
@@ -249,8 +249,8 @@ export const useInfiniteAuditLogs = (options: Omit<ListQueryOptions, 'pagination
   return useInfiniteQuery({
     queryKey: auditLogKeys.infinite({ sort, filters }),
     queryFn: async ({ pageParam = 0 }) => {
-      let query = supabase
-        .from('audit_log')
+      let query = (supabase as any)
+        .from('audit_event')
         .select('*, user:profile(id, email, full_name)', { count: 'exact' });
 
       filters.forEach(filter => {
@@ -285,8 +285,8 @@ export const useAuditLog = (logId: string, options: { enabled?: boolean } = {}) 
   return useQuery({
     queryKey: auditLogKeys.detail(logId),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('audit_log')
+      const { data, error } = await (supabase as any)
+        .from('audit_event')
         .select('*, user:profile(id, email, full_name)')
         .eq('id', logId)
         .single();
@@ -309,8 +309,8 @@ export const useAuditLogsByUser = (userId: string, pagination?: PaginationParams
   return useQuery({
     queryKey: auditLogQueryKeys.byUser(userId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
-        .from('audit_log')
+      const { data, error, count } = await (supabase as any)
+        .from('audit_event')
         .select('*', { count: 'exact' })
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
@@ -338,8 +338,8 @@ export const useAuditLogsByResource = (
   return useQuery({
     queryKey: auditLogQueryKeys.byResource(resourceType, resourceId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
-        .from('audit_log')
+      const { data, error, count } = await (supabase as any)
+        .from('audit_event')
         .select('*, user:profile(id, email, full_name)', { count: 'exact' })
         .eq('resource_type', resourceType)
         .eq('resource_id', resourceId)
@@ -364,8 +364,8 @@ export const useAuditLogsByAction = (action: AuditAction, pagination?: Paginatio
   return useQuery({
     queryKey: auditLogQueryKeys.byAction(action),
     queryFn: async () => {
-      const { data, error, count } = await supabase
-        .from('audit_log')
+      const { data, error, count } = await (supabase as any)
+        .from('audit_event')
         .select('*, user:profile(id, email, full_name)', { count: 'exact' })
         .eq('action', action)
         .order('created_at', { ascending: false })
@@ -388,8 +388,8 @@ export const useSearchAuditLogs = (filters: AuditLogFilters, pagination?: Pagina
   return useQuery({
     queryKey: auditLogQueryKeys.search(filters),
     queryFn: async () => {
-      let query = supabase
-        .from('audit_log')
+      let query = (supabase as any)
+        .from('audit_event')
         .select('*, user:profile(id, email, full_name)', { count: 'exact' });
 
       if (filters.userId) {
@@ -440,8 +440,8 @@ export const useRecentAuditLogs = (limit: number = 50) => {
   return useQuery({
     queryKey: auditLogQueryKeys.recent(),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('audit_log')
+      const { data, error } = await (supabase as any)
+        .from('audit_event')
         .select('*, user:profile(id, email, full_name)')
         .order('created_at', { ascending: false })
         .limit(limit);
@@ -476,8 +476,8 @@ export const useSecurityAuditLogs = (pagination?: PaginationParams) => {
   return useQuery({
     queryKey: auditLogQueryKeys.security(),
     queryFn: async () => {
-      const { data, error, count } = await supabase
-        .from('audit_log')
+      const { data, error, count } = await (supabase as any)
+        .from('audit_event')
         .select('*, user:profile(id, email, full_name)', { count: 'exact' })
         .in('action', securityActions)
         .order('created_at', { ascending: false })
@@ -500,8 +500,8 @@ export const useFailedOperations = (pagination?: PaginationParams) => {
   return useQuery({
     queryKey: [...auditLogKeys.all, 'failed'] as const,
     queryFn: async () => {
-      const { data, error, count } = await supabase
-        .from('audit_log')
+      const { data, error, count } = await (supabase as any)
+        .from('audit_event')
         .select('*, user:profile(id, email, full_name)', { count: 'exact' })
         .eq('status', 'failure')
         .order('created_at', { ascending: false })
@@ -522,8 +522,8 @@ export const useAuditStats = (tenantId: string, days: number = 30) => {
   return useQuery({
     queryKey: [...auditLogQueryKeys.stats(tenantId), days] as const,
     queryFn: async () => {
-      const { data, error, count } = await supabase
-        .from('audit_log')
+      const { data, error, count } = await (supabase as any)
+        .from('audit_event')
         .select('action, severity, resource_type, status', { count: 'exact' })
         .eq('tenant_id', tenantId)
         .gte('created_at', startDate);
@@ -568,8 +568,8 @@ export const useCreateAuditLog = (
 
   return useMutation({
     mutationFn: async (log: AuditLogInsert) => {
-      const { data, error } = await supabase
-        .from('audit_log')
+      const { data, error } = await (supabase as any)
+        .from('audit_event')
         .insert(log)
         .select()
         .single();
@@ -597,8 +597,8 @@ export const useBatchCreateAuditLogs = (
 
   return useMutation({
     mutationFn: async (logs: AuditLogInsert[]) => {
-      const { data, error } = await supabase
-        .from('audit_log')
+      const { data, error } = await (supabase as any)
+        .from('audit_event')
         .insert(logs)
         .select();
 
@@ -626,8 +626,8 @@ export const usePurgeAuditLogs = (
     mutationFn: async ({ tenantId, olderThanDays }: { tenantId: string; olderThanDays: number }) => {
       const cutoffDate = new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1000).toISOString();
 
-      const { data, error } = await supabase
-        .from('audit_log')
+      const { data, error } = await (supabase as any)
+        .from('audit_event')
         .delete()
         .eq('tenant_id', tenantId)
         .lt('created_at', cutoffDate)
