@@ -35,6 +35,7 @@ import NotFound from "./pages/NotFound";
 import EnergyDashboard from "./pages/EnergyDashboard";
 import QualityControlComparison from "./pages/QualityControlComparison";
 import PredictiveMaintenanceDashboard from "./pages/PredictiveMaintenanceDashboard";
+import AIGovernance from "./pages/AIGovernance";
 import UsersManagement from "./pages/governance/UsersManagement";
 import RolesManagement from "./pages/governance/RolesManagement";
 import PermissionsManagement from "./pages/governance/PermissionsManagement";
@@ -79,6 +80,14 @@ const App = () => (
                 <Route path="/audit-logs" element={<ProtectedRoute><AuditLogs /></ProtectedRoute>} />
                 <Route path="/documentation" element={<ProtectedRoute><Documentation /></ProtectedRoute>} />
                 
+                {/* Industry dashboards */}
+                <Route path="/energy" element={<ProtectedRoute><EnergyDashboard /></ProtectedRoute>} />
+                <Route path="/quality-control" element={<ProtectedRoute><QualityControlComparison /></ProtectedRoute>} />
+                <Route path="/predictive-maintenance" element={<ProtectedRoute><PredictiveMaintenanceDashboard /></ProtectedRoute>} />
+
+                {/* AI Governance (EU AI Act) */}
+                <Route path="/ai-governance" element={<ProtectedRoute><AIGovernance /></ProtectedRoute>} />
+
                 {/* Governance IAM Routes */}
                 <Route path="/governance/users" element={<ProtectedRoute><UsersManagement /></ProtectedRoute>} />
                 <Route path="/governance/roles" element={<ProtectedRoute><RolesManagement /></ProtectedRoute>} />

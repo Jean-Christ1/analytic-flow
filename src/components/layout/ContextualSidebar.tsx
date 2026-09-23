@@ -125,6 +125,9 @@ const contextualNav: Record<string, { title: string; createLabel?: string; creat
           { label: "Alerts", icon: AlertTriangle, href: "/monitoring?tab=alerts", badge: "3", badgeVariant: "warning" },
           { label: "Metrics", icon: BarChart3, href: "/monitoring?tab=metrics" },
           { label: "FinOps", icon: DollarSign, href: "/finops" },
+          { label: "Energy", icon: Gauge, href: "/energy" },
+          { label: "Quality Control", icon: LineChart, href: "/quality-control" },
+          { label: "Predictive Maint.", icon: Cpu, href: "/predictive-maintenance" },
         ],
       },
     ],
@@ -138,6 +141,7 @@ const contextualNav: Record<string, { title: string; createLabel?: string; creat
         items: [
           { label: "Overview", icon: Shield, href: "/compliance" },
           { label: "Regulations", icon: ClipboardList, href: "/compliance?tab=regulations" },
+          { label: "AI Act / AI Systems", icon: Shield, href: "/ai-governance" },
         ],
       },
       {
