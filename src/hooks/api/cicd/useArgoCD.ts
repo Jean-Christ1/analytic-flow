@@ -251,7 +251,7 @@ export const useArgoCdInstances = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: argoCdInstanceKeys.list({ pagination, sort }),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('argocd_instance')
         .select('*', { count: 'exact' })
         .order(sort.column, { ascending: sort.ascending ?? true })
@@ -271,7 +271,7 @@ export const useArgoCdInstance = (instanceId: string, options: { enabled?: boole
   return useQuery({
     queryKey: argoCdInstanceKeys.detail(instanceId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_instance')
         .select('*')
         .eq('id', instanceId)
@@ -306,7 +306,7 @@ export const useArgoCdApplications = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: argoCdAppKeys.list({ pagination, sort, filters }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('argocd_application')
         .select('*, instance:argocd_instance(id, name, base_url), project:project_id(id, name, slug)', { count: 'exact' });
 
@@ -337,7 +337,7 @@ export const useArgoCdApplication = (appId: string, options: { enabled?: boolean
   return useQuery({
     queryKey: argoCdAppKeys.detail(appId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_application')
         .select('*, instance:argocd_instance(id, name, base_url), project:project_id(id, name, slug)')
         .eq('id', appId)
@@ -357,7 +357,7 @@ export const useArgoCdAppsByProject = (projectId: string) => {
   return useQuery({
     queryKey: argoCdAppQueryKeys.byProject(projectId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_application')
         .select('*, instance:argocd_instance(id, name)')
         .eq('project_id', projectId)
@@ -377,7 +377,7 @@ export const useUnhealthyApps = () => {
   return useQuery({
     queryKey: argoCdAppQueryKeys.unhealthy(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_application')
         .select('*, instance:argocd_instance(id, name), project:project_id(id, name)')
         .in('health', ['degraded', 'missing'])
@@ -397,7 +397,7 @@ export const useOutOfSyncApps = () => {
   return useQuery({
     queryKey: argoCdAppQueryKeys.outOfSync(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_application')
         .select('*, instance:argocd_instance(id, name), project:project_id(id, name)')
         .eq('status', 'outofsync')
@@ -421,7 +421,7 @@ export const useSyncHistory = (applicationId: string, limit: number = 20) => {
   return useQuery({
     queryKey: [...argoCdSyncHistoryKeys.all, 'app', applicationId, limit] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_sync_history')
         .select('*')
         .eq('application_id', applicationId)
@@ -446,7 +446,7 @@ export const useAppResources = (applicationId: string) => {
   return useQuery({
     queryKey: [...argoCdResourceKeys.all, 'app', applicationId] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_resource_status')
         .select('*')
         .eq('application_id', applicationId)
@@ -471,7 +471,7 @@ export const useAppEvents = (applicationId: string, limit: number = 50) => {
   return useQuery({
     queryKey: [...argoCdEventKeys.all, 'app', applicationId, limit] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_event')
         .select('*')
         .eq('application_id', applicationId)
@@ -496,7 +496,7 @@ export const useDriftFindings = (applicationId: string) => {
   return useQuery({
     queryKey: driftQueryKeys.byApp(applicationId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_drift_finding')
         .select('*')
         .eq('application_id', applicationId)
@@ -516,7 +516,7 @@ export const useOpenDriftFindings = () => {
   return useQuery({
     queryKey: driftQueryKeys.open(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_drift_finding')
         .select('*, application:argocd_application(id, name, project_id)')
         .eq('status', 'open')
@@ -543,7 +543,7 @@ export const useCreateArgoCdInstance = (
 
   return useMutation({
     mutationFn: async (instance: ArgoCdInstanceInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_instance')
         .insert(instance)
         .select()
@@ -571,7 +571,7 @@ export const useUpdateArgoCdInstance = (
 
   return useMutation({
     mutationFn: async ({ id, updates }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_instance')
         .update(updates)
         .eq('id', id)
@@ -601,7 +601,7 @@ export const useDeleteArgoCdInstance = (
 
   return useMutation({
     mutationFn: async (instanceId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('argocd_instance')
         .delete()
         .eq('id', instanceId);
@@ -631,7 +631,7 @@ export const useCreateArgoCdApplication = (
 
   return useMutation({
     mutationFn: async (app: ArgoCdApplicationInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_application')
         .insert(app)
         .select()
@@ -660,7 +660,7 @@ export const useUpdateArgoCdApplication = (
 
   return useMutation({
     mutationFn: async ({ id, updates }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_application')
         .update(updates)
         .eq('id', id)
@@ -690,7 +690,7 @@ export const useUpdateSyncPolicy = (
 
   return useMutation({
     mutationFn: async ({ id, syncPolicy }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_application')
         .update({ sync_policy: syncPolicy })
         .eq('id', id)
@@ -723,7 +723,7 @@ export const useUpdateAppStatus = (
 
   return useMutation({
     mutationFn: async ({ id, status, health }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_application')
         .update({ status, health, last_sync_at: new Date().toISOString() })
         .eq('id', id)
@@ -754,7 +754,7 @@ export const useDeleteArgoCdApplication = (
 
   return useMutation({
     mutationFn: async (appId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('argocd_application')
         .delete()
         .eq('id', appId);
@@ -790,7 +790,7 @@ export const useUpdateDriftStatus = (
         updates.resolved_by = resolvedBy || null;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('argocd_drift_finding')
         .update(updates)
         .eq('id', id)
