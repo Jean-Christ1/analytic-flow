@@ -204,7 +204,7 @@ export const useQuotas = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: quotaKeys.list({ pagination, sort, filters }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('quota')
         .select('*', { count: 'exact' });
 
@@ -238,7 +238,7 @@ export const useQuota = (quotaId: string, options: { enabled?: boolean } = {}) =
   return useQuery({
     queryKey: quotaKeys.detail(quotaId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quota')
         .select('*')
         .eq('id', quotaId)
@@ -258,7 +258,7 @@ export const useQuotasByTenant = (tenantId: string) => {
   return useQuery({
     queryKey: quotaQueryKeys.byTenant(tenantId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quota')
         .select('*')
         .eq('tenant_id', tenantId)
@@ -279,7 +279,7 @@ export const useQuotasByProject = (projectId: string) => {
   return useQuery({
     queryKey: quotaQueryKeys.byProject(projectId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quota')
         .select('*')
         .eq('scope', 'project')
@@ -300,7 +300,7 @@ export const useQuotasByTeam = (teamId: string) => {
   return useQuery({
     queryKey: quotaQueryKeys.byTeam(teamId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quota')
         .select('*')
         .eq('scope', 'team')
@@ -321,7 +321,7 @@ export const useQuotasByUser = (userId: string) => {
   return useQuery({
     queryKey: quotaQueryKeys.byUser(userId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quota')
         .select('*')
         .eq('scope', 'user')
@@ -346,7 +346,7 @@ export const useQuotaByResource = (
   return useQuery({
     queryKey: [...quotaQueryKeys.byResource(resourceType), scope, scopeId] as const,
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('quota')
         .select('*')
         .eq('resource_type', resourceType)
@@ -373,7 +373,7 @@ export const useQuotaStatus = (scope: QuotaScope, scopeId: string | null) => {
   return useQuery({
     queryKey: quotaQueryKeys.status(scope, scopeId),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('quota')
         .select('*')
         .eq('scope', scope);
@@ -433,24 +433,14 @@ export const useExceededQuotas = () => {
   return useQuery({
     queryKey: quotaQueryKeys.exceeded(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quota')
         .select('*')
-        .gte('current_usage', supabase.rpc('get_hard_limit'))
         .order('updated_at', { ascending: false });
 
-      // Fallback query if RPC not available
-      if (error) {
-        const { data: allData, error: allError } = await supabase
-          .from('quota')
-          .select('*');
+      if (error) throw error;
 
-        if (allError) throw allError;
-
-        return (allData || []).filter(q => q.current_usage >= q.hard_limit) as Quota[];
-      }
-
-      return data as Quota[];
+      return ((data || []) as Quota[]).filter(q => q.current_usage >= q.hard_limit);
     },
   });
 };
@@ -462,7 +452,7 @@ export const useQuotaWarnings = () => {
   return useQuery({
     queryKey: quotaQueryKeys.warnings(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quota')
         .select('*');
 
@@ -490,7 +480,7 @@ export const useCheckQuota = (
   return useQuery({
     queryKey: [...quotaQueryKeys.byResource(resourceType), 'check', scope, scopeId, amount] as const,
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('quota')
         .select('*')
         .eq('resource_type', resourceType)
@@ -540,7 +530,7 @@ export const useCreateQuota = (
 
   return useMutation({
     mutationFn: async (quota: QuotaInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quota')
         .insert(quota)
         .select()
@@ -571,7 +561,7 @@ export const useUpdateQuota = (
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: QuotaUpdate }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quota')
         .update(updates)
         .eq('id', id)
@@ -601,7 +591,7 @@ export const useDeleteQuota = (
 
   return useMutation({
     mutationFn: async (quotaId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('quota')
         .delete()
         .eq('id', quotaId);
@@ -631,7 +621,7 @@ export const useIncrementQuotaUsage = (
       amount,
     }: { quotaId: string; amount: number; source?: string; sourceId?: string }) => {
       // First get current usage
-      const { data: current, error: fetchError } = await supabase
+      const { data: current, error: fetchError } = await (supabase as any)
         .from('quota')
         .select('current_usage, hard_limit')
         .eq('id', quotaId)
@@ -647,7 +637,7 @@ export const useIncrementQuotaUsage = (
       }
 
       // Update
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quota')
         .update({ current_usage: newUsage })
         .eq('id', quotaId)
@@ -680,7 +670,7 @@ export const useDecrementQuotaUsage = (
   return useMutation({
     mutationFn: async ({ quotaId, amount }: { quotaId: string; amount: number }) => {
       // First get current usage
-      const { data: current, error: fetchError } = await supabase
+      const { data: current, error: fetchError } = await (supabase as any)
         .from('quota')
         .select('current_usage')
         .eq('id', quotaId)
@@ -691,7 +681,7 @@ export const useDecrementQuotaUsage = (
       const newUsage = Math.max(0, current.current_usage - amount);
 
       // Update
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quota')
         .update({ current_usage: newUsage })
         .eq('id', quotaId)
@@ -723,7 +713,7 @@ export const useResetQuotaUsage = (
 
   return useMutation({
     mutationFn: async (quotaId: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quota')
         .update({
           current_usage: 0,
@@ -759,7 +749,7 @@ export const useResetPeriodicQuotas = (
 
   return useMutation({
     mutationFn: async (period: QuotaPeriod) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('quota')
         .update({
           current_usage: 0,

@@ -67,7 +67,7 @@ class RunService {
    * Start a new ML run
    */
   async startRun(config: RunExecutionConfig): Promise<Run> {
-    const { data: run, error } = await supabase
+    const { data: run, error } = await (supabase as any)
       .from('run')
       .insert({
         tenant_id: await this.getCurrentTenantId(),
@@ -107,7 +107,7 @@ class RunService {
    */
   async stopRun(runId: string): Promise<void> {
     // Update status to canceled
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('run')
       .update({
         status: 'canceled',
@@ -138,7 +138,7 @@ class RunService {
       logged_at: m.timestamp ?? new Date().toISOString(),
     }));
 
-    const { error } = await supabase.from('run_metric').insert(metricsToInsert);
+    const { error } = await (supabase as any).from('run_metric').insert(metricsToInsert);
 
     if (error) {
       console.error('Failed to log metrics:', error);
@@ -156,7 +156,7 @@ class RunService {
     const tenantId = await this.getCurrentTenantId();
 
     for (const param of params) {
-      await supabase.from('run_param').upsert(
+      await (supabase as any).from('run_param').upsert(
         {
           tenant_id: tenantId,
           run_id: runId,
@@ -177,7 +177,7 @@ class RunService {
   ): Promise<AsyncGenerator<string>> {
     // TODO: Implement actual log streaming from Kubernetes
     // This is a placeholder implementation
-    const { data: run } = await supabase
+    const { data: run } = await (supabase as any)
       .from('run')
       .select('logs_uri')
       .eq('id', runId)
@@ -197,13 +197,13 @@ class RunService {
    * Get run output (metrics, artifacts, status)
    */
   async getRunOutput(runId: string): Promise<RunOutput> {
-    const { data: run } = await supabase
+    const { data: run } = await (supabase as any)
       .from('run')
       .select('status, metrics_summary, status_message')
       .eq('id', runId)
       .single();
 
-    const { data: artifacts } = await supabase
+    const { data: artifacts } = await (supabase as any)
       .from('artifact')
       .select('uri')
       .eq('run_id', runId);
@@ -227,17 +227,17 @@ class RunService {
     params: Record<string, Record<string, string>>;
     metrics: Record<string, Record<string, number>>;
   }> {
-    const { data: runs } = await supabase
+    const { data: runs } = await (supabase as any)
       .from('run')
       .select('id, status, started_at, ended_at, params, metrics_summary')
       .in('id', runIds);
 
-    const { data: params } = await supabase
+    const { data: params } = await (supabase as any)
       .from('run_param')
       .select('run_id, key, value')
       .in('run_id', runIds);
 
-    const { data: metrics } = await supabase
+    const { data: metrics } = await (supabase as any)
       .from('run_metric')
       .select('run_id, name, value')
       .in('run_id', runIds);
@@ -288,7 +288,7 @@ class RunService {
     const storageCostPerGb = 0.023;
 
     // Get compute profile specs
-    const { data: computeProfile } = await supabase
+    const { data: computeProfile } = await (supabase as any)
       .from('compute_profile')
       .select('*')
       .eq('id', config.computeProfileId)
@@ -324,7 +324,7 @@ class RunService {
    * Retry a failed run
    */
   async retryRun(runId: string): Promise<Run> {
-    const { data: originalRun } = await supabase
+    const { data: originalRun } = await (supabase as any)
       .from('run')
       .select('*')
       .eq('id', runId)
@@ -354,7 +354,7 @@ class RunService {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw new Error('Not authenticated');
 
-    const { data: profile } = await supabase
+    const { data: profile } = await (supabase as any)
       .from('profiles')
       .select('tenant_id')
       .eq('user_id', data.user.id)
@@ -365,7 +365,7 @@ class RunService {
   }
 
   private async getProjectIdFromExperiment(experimentId: string): Promise<string> {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from('experiment')
       .select('project_id')
       .eq('id', experimentId)
@@ -377,7 +377,7 @@ class RunService {
 
   private async updateMetricsSummary(runId: string): Promise<void> {
     // Get latest value for each metric
-    const { data: metrics } = await supabase
+    const { data: metrics } = await (supabase as any)
       .from('run_metric')
       .select('name, value')
       .eq('run_id', runId)
@@ -393,7 +393,7 @@ class RunService {
       }
     }
 
-    await supabase.from('run').update({ metrics_summary: summary }).eq('id', runId);
+    await (supabase as any).from('run').update({ metrics_summary: summary }).eq('id', runId);
   }
 }
 

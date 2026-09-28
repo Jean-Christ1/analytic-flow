@@ -209,7 +209,7 @@ export const usePipelines = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: pipelineKeys.list({ pagination, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('cicd_pipeline')
         .select(select, { count: 'exact' });
 
@@ -252,7 +252,7 @@ export const useInfinitePipelines = (options: Omit<ListQueryOptions, 'pagination
   return useInfiniteQuery({
     queryKey: pipelineKeys.infinite({ sort, filters }),
     queryFn: async ({ pageParam = 0 }) => {
-      let query = supabase
+      let query = (supabase as any)
         .from('cicd_pipeline')
         .select('*, project:project_id(id, name, slug)', { count: 'exact' });
 
@@ -288,7 +288,7 @@ export const usePipeline = (pipelineId: string, options: { enabled?: boolean } =
   return useQuery({
     queryKey: pipelineKeys.detail(pipelineId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_pipeline')
         .select('*, project:project_id(id, name, slug)')
         .eq('id', pipelineId)
@@ -313,7 +313,7 @@ export const usePipelinesByProject = (projectId: string, options: ListQueryOptio
   return useQuery({
     queryKey: pipelineQueryKeys.byProject(projectId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('cicd_pipeline')
         .select('*', { count: 'exact' })
         .eq('project_id', projectId)
@@ -334,7 +334,7 @@ export const usePipelinesByStatus = (status: CicdPipelineStatus) => {
   return useQuery({
     queryKey: pipelineQueryKeys.byStatus(status),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_pipeline')
         .select('*, project:project_id(id, name, slug)')
         .eq('status', status)
@@ -353,7 +353,7 @@ export const useRunningPipelines = () => {
   return useQuery({
     queryKey: pipelineQueryKeys.running(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_pipeline')
         .select('*, project:project_id(id, name, slug)')
         .in('status', ['created', 'pending', 'running'])
@@ -373,7 +373,7 @@ export const useRecentPipelines = (limit: number = 10) => {
   return useQuery({
     queryKey: [...pipelineQueryKeys.recent(), limit] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_pipeline')
         .select('*, project:project_id(id, name, slug)')
         .order('created_at', { ascending: false })
@@ -396,7 +396,7 @@ export const useStagesByPipeline = (pipelineId: string) => {
   return useQuery({
     queryKey: [...stageKeys.all, 'pipeline', pipelineId] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_stage')
         .select('*')
         .eq('pipeline_id', pipelineId)
@@ -420,7 +420,7 @@ export const useJobsByPipeline = (pipelineId: string) => {
   return useQuery({
     queryKey: jobQueryKeys.byPipeline(pipelineId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_job')
         .select('*, stage:cicd_stage(id, name, status)')
         .eq('pipeline_id', pipelineId)
@@ -440,7 +440,7 @@ export const useJob = (jobId: string, options: { enabled?: boolean } = {}) => {
   return useQuery({
     queryKey: jobKeys.detail(jobId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_job')
         .select('*, stage:cicd_stage(id, name, status), artifacts:cicd_job_artifact(*)')
         .eq('id', jobId)
@@ -460,7 +460,7 @@ export const useFailedJobs = (limit: number = 20) => {
   return useQuery({
     queryKey: [...jobQueryKeys.failed(), limit] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_job')
         .select('*, stage:cicd_stage(id, name)')
         .eq('status', 'failed')
@@ -484,7 +484,7 @@ export const useArtifactsByJob = (jobId: string) => {
   return useQuery({
     queryKey: [...artifactKeys.all, 'job', jobId] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_job_artifact')
         .select('*')
         .eq('job_id', jobId)
@@ -511,7 +511,7 @@ export const useCreatePipeline = (
 
   return useMutation({
     mutationFn: async (pipeline: CicdPipelineInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_pipeline')
         .insert(pipeline)
         .select()
@@ -541,7 +541,7 @@ export const useUpdatePipeline = (
 
   return useMutation({
     mutationFn: async ({ id, updates }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_pipeline')
         .update(updates)
         .eq('id', id)
@@ -582,7 +582,7 @@ export const useUpdatePipelineStatus = (
         updates.finished_at = new Date().toISOString();
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_pipeline')
         .update(updates)
         .eq('id', id)
@@ -617,7 +617,7 @@ export const useCreateJob = (
 
   return useMutation({
     mutationFn: async (job: CicdJobInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_job')
         .insert(job)
         .select()
@@ -645,7 +645,7 @@ export const useUpdateJob = (
 
   return useMutation({
     mutationFn: async ({ id, updates }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_job')
         .update(updates)
         .eq('id', id)
@@ -675,7 +675,7 @@ export const useRetryJob = (
 
   return useMutation({
     mutationFn: async (jobId: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_job')
         .update({
           status: 'pending',
@@ -718,7 +718,7 @@ export const useCreateArtifact = (
 
   return useMutation({
     mutationFn: async (artifact: CicdJobArtifactInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cicd_job_artifact')
         .insert(artifact)
         .select()

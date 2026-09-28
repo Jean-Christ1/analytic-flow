@@ -82,7 +82,7 @@ class WorkspaceService {
 
     // If using a template, load template defaults
     if (config.templateId) {
-      const { data: template } = await supabase
+      const { data: template } = await (supabase as any)
         .from('workspace_template')
         .select('*')
         .eq('id', config.templateId)
@@ -97,7 +97,7 @@ class WorkspaceService {
       }
     }
 
-    const { data: workspace, error } = await supabase
+    const { data: workspace, error } = await (supabase as any)
       .from('workspace')
       .insert({
         tenant_id: user.tenantId,
@@ -132,7 +132,7 @@ class WorkspaceService {
    * Get workspace details
    */
   async getWorkspaceDetails(workspaceId: string): Promise<WorkspaceDetails | null> {
-    const { data: workspace, error } = await supabase
+    const { data: workspace, error } = await (supabase as any)
       .from('workspace')
       .select(`
         *,
@@ -204,7 +204,7 @@ class WorkspaceService {
     // For now, just update status
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    await supabase
+    await (supabase as any)
       .from('workspace')
       .update({
         status: 'stopped',
@@ -230,7 +230,7 @@ class WorkspaceService {
    */
   async terminateWorkspace(workspaceId: string): Promise<void> {
     // Stop if running
-    const { data: workspace } = await supabase
+    const { data: workspace } = await (supabase as any)
       .from('workspace')
       .select('status')
       .eq('id', workspaceId)
@@ -241,7 +241,7 @@ class WorkspaceService {
     }
 
     // Delete workspace record
-    await supabase.from('workspace').delete().eq('id', workspaceId);
+    await (supabase as any).from('workspace').delete().eq('id', workspaceId);
 
     this.stopStatusPoller(workspaceId);
   }
@@ -250,7 +250,7 @@ class WorkspaceService {
    * Get workspace access URL
    */
   async getWorkspaceUrl(workspaceId: string): Promise<string | null> {
-    const { data: workspace } = await supabase
+    const { data: workspace } = await (supabase as any)
       .from('workspace')
       .select('endpoint_url, status')
       .eq('id', workspaceId)
@@ -270,7 +270,7 @@ class WorkspaceService {
     // TODO: Fetch actual metrics from Prometheus/monitoring system
     // This is a placeholder implementation
 
-    const { data: workspace } = await supabase
+    const { data: workspace } = await (supabase as any)
       .from('workspace')
       .select('resources_used')
       .eq('id', workspaceId)
@@ -296,7 +296,7 @@ class WorkspaceService {
    * Update workspace activity (heartbeat)
    */
   async recordActivity(workspaceId: string): Promise<void> {
-    await supabase
+    await (supabase as any)
       .from('workspace')
       .update({ last_activity_at: new Date().toISOString() })
       .eq('id', workspaceId);
@@ -308,7 +308,7 @@ class WorkspaceService {
   async getMyActiveWorkspaces(): Promise<WorkspaceDetails[]> {
     const user = await this.getCurrentUser();
 
-    const { data: workspaces } = await supabase
+    const { data: workspaces } = await (supabase as any)
       .from('workspace')
       .select('id')
       .eq('user_id', user.id)
@@ -328,7 +328,7 @@ class WorkspaceService {
    * Check for idle workspaces and auto-shutdown
    */
   async checkIdleWorkspaces(): Promise<void> {
-    const { data: workspaces } = await supabase
+    const { data: workspaces } = await (supabase as any)
       .from('workspace')
       .select('id, auto_shutdown_minutes, last_activity_at')
       .eq('status', 'running');
@@ -355,7 +355,7 @@ class WorkspaceService {
     sourceId: string,
     newName: string
   ): Promise<Workspace> {
-    const { data: source } = await supabase
+    const { data: source } = await (supabase as any)
       .from('workspace')
       .select('*')
       .eq('id', sourceId)
@@ -367,7 +367,7 @@ class WorkspaceService {
 
     const user = await this.getCurrentUser();
 
-    const { data: clone, error } = await supabase
+    const { data: clone, error } = await (supabase as any)
       .from('workspace')
       .insert({
         tenant_id: source.tenant_id,
@@ -421,7 +421,7 @@ class WorkspaceService {
     // Generate mock endpoint URL
     const endpoint = `https://workspace-${workspaceId.substring(0, 8)}.mlops.example.com`;
 
-    await supabase
+    await (supabase as any)
       .from('workspace')
       .update({
         status: 'running',
@@ -440,7 +440,7 @@ class WorkspaceService {
     workspaceId: string,
     status: WorkspaceStatus
   ): Promise<void> {
-    await supabase.from('workspace').update({ status }).eq('id', workspaceId);
+    await (supabase as any).from('workspace').update({ status }).eq('id', workspaceId);
   }
 
   private startStatusPoller(workspaceId: string): void {
@@ -466,7 +466,7 @@ class WorkspaceService {
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw new Error('Not authenticated');
 
-    const { data: profile } = await supabase
+    const { data: profile } = await (supabase as any)
       .from('profiles')
       .select('tenant_id')
       .eq('user_id', data.user.id)

@@ -198,7 +198,7 @@ export const useActivityFeed = (options: ListQueryOptions = {}) => {
     queryKey: activityFeedKeys.list({ pagination, sort, filters }),
     queryFn: async () => {
       let query = supabase
-        .from('activity_feed')
+        .from('activity_event')
         .select(`
           *,
           user:profile(id, email, full_name, avatar_url),
@@ -241,7 +241,7 @@ export const useInfiniteActivityFeed = (
     queryKey: [...activityFeedQueryKeys.byProject(projectId || 'all'), 'infinite'] as const,
     queryFn: async ({ pageParam = 0 }) => {
       let query = supabase
-        .from('activity_feed')
+        .from('activity_event')
         .select(`
           *,
           user:profile(id, email, full_name, avatar_url),
@@ -282,7 +282,7 @@ export const useActivityByProject = (projectId: string, pagination?: PaginationP
     queryKey: activityFeedQueryKeys.byProject(projectId),
     queryFn: async () => {
       const { data, error, count } = await supabase
-        .from('activity_feed')
+        .from('activity_event')
         .select(`
           *,
           user:profile(id, email, full_name, avatar_url)
@@ -310,7 +310,7 @@ export const useActivityByUser = (userId: string, pagination?: PaginationParams)
     queryKey: activityFeedQueryKeys.byUser(userId),
     queryFn: async () => {
       const { data, error, count } = await supabase
-        .from('activity_feed')
+        .from('activity_event')
         .select(`
           *,
           project(id, name, slug)
@@ -342,7 +342,7 @@ export const useActivityByEntity = (
     queryKey: activityFeedQueryKeys.byEntity(entityType, entityId),
     queryFn: async () => {
       const { data, error, count } = await supabase
-        .from('activity_feed')
+        .from('activity_event')
         .select(`
           *,
           user:profile(id, email, full_name, avatar_url)
@@ -367,7 +367,7 @@ export const useActivityByEventType = (eventType: ActivityEventType, projectId?:
     queryKey: [...activityFeedQueryKeys.byEventType(eventType), projectId] as const,
     queryFn: async () => {
       let query = supabase
-        .from('activity_feed')
+        .from('activity_event')
         .select(`
           *,
           user:profile(id, email, full_name, avatar_url)
@@ -398,7 +398,7 @@ export const useRecentActivities = (projectId?: string, limit: number = 20) => {
     queryKey: [...activityFeedQueryKeys.timeline(projectId), 'recent'] as const,
     queryFn: async () => {
       let query = supabase
-        .from('activity_feed')
+        .from('activity_event')
         .select(`
           *,
           user:profile(id, email, full_name, avatar_url),
@@ -430,7 +430,7 @@ export const useActivityTimeline = (projectId?: string, days: number = 7) => {
     queryKey: [...activityFeedQueryKeys.timeline(projectId), days] as const,
     queryFn: async () => {
       let query = supabase
-        .from('activity_feed')
+        .from('activity_event')
         .select(`
           *,
           user:profile(id, email, full_name, avatar_url),
@@ -477,7 +477,7 @@ export const useActivityStats = (projectId?: string, days: number = 30) => {
     queryKey: [...activityFeedQueryKeys.stats(projectId), days] as const,
     queryFn: async () => {
       let query = supabase
-        .from('activity_feed')
+        .from('activity_event')
         .select('event_type, created_at')
         .gte('created_at', startDate);
 
@@ -518,7 +518,7 @@ export const usePublicActivities = (pagination?: PaginationParams) => {
     queryKey: [...activityFeedKeys.all, 'public'] as const,
     queryFn: async () => {
       const { data, error, count } = await supabase
-        .from('activity_feed')
+        .from('activity_event')
         .select(`
           *,
           user:profile(id, email, full_name, avatar_url),
@@ -549,7 +549,7 @@ export const useRecordActivity = (
   return useMutation({
     mutationFn: async (activity: ActivityInsert) => {
       const { data, error } = await supabase
-        .from('activity_feed')
+        .from('activity_event')
         .insert(activity)
         .select()
         .single();
@@ -584,7 +584,7 @@ export const useBatchRecordActivities = (
   return useMutation({
     mutationFn: async (activities: ActivityInsert[]) => {
       const { data, error } = await supabase
-        .from('activity_feed')
+        .from('activity_event')
         .insert(activities)
         .select();
 
@@ -613,7 +613,7 @@ export const useCleanupOldActivities = (
       const cutoffDate = new Date(Date.now() - olderThanDays * 24 * 60 * 60 * 1000).toISOString();
 
       let query = supabase
-        .from('activity_feed')
+        .from('activity_event')
         .delete()
         .lt('created_at', cutoffDate);
 

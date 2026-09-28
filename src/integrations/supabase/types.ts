@@ -7436,6 +7436,8 @@ export type Database = {
       webhook_config: {
         Row: {
           created_at: string
+          created_by: string | null
+          description: string | null
           enabled: boolean
           events: string[]
           headers: Json | null
@@ -7443,16 +7445,22 @@ export type Database = {
           last_response_code: number | null
           last_triggered_at: string | null
           name: string
+          project_id: string | null
           retry_count: number
           retry_delay_seconds: number
           secret: string | null
+          status: string
           tenant_id: string
+          timeout_seconds: number
           updated_at: string
           url: string
           user_id: string
+          verify_ssl: boolean
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
+          description?: string | null
           enabled?: boolean
           events?: string[]
           headers?: Json | null
@@ -7460,16 +7468,22 @@ export type Database = {
           last_response_code?: number | null
           last_triggered_at?: string | null
           name: string
+          project_id?: string | null
           retry_count?: number
           retry_delay_seconds?: number
           secret?: string | null
+          status?: string
           tenant_id: string
+          timeout_seconds?: number
           updated_at?: string
           url: string
           user_id: string
+          verify_ssl?: boolean
         }
         Update: {
           created_at?: string
+          created_by?: string | null
+          description?: string | null
           enabled?: boolean
           events?: string[]
           headers?: Json | null
@@ -7477,13 +7491,17 @@ export type Database = {
           last_response_code?: number | null
           last_triggered_at?: string | null
           name?: string
+          project_id?: string | null
           retry_count?: number
           retry_delay_seconds?: number
           secret?: string | null
+          status?: string
           tenant_id?: string
+          timeout_seconds?: number
           updated_at?: string
           url?: string
           user_id?: string
+          verify_ssl?: boolean
         }
         Relationships: [
           {
@@ -7497,12 +7515,23 @@ export type Database = {
       }
       webhook_delivery: {
         Row: {
+          attempt_count: number
           attempts: number | null
           created_at: string
+          delivered_at: string | null
+          error_message: string | null
+          event_id: string | null
           event_type: string
           id: string
           last_error: string | null
+          max_attempts: number
+          next_retry_at: string | null
           payload: Json | null
+          request_headers: Json
+          response_body: string | null
+          response_headers: Json | null
+          response_status: number | null
+          response_time_ms: number | null
           sent_at: string | null
           status: Database["public"]["Enums"]["webhook_delivery_status"] | null
           subscription_id: string
@@ -7510,12 +7539,23 @@ export type Database = {
           webhook_id: string | null
         }
         Insert: {
+          attempt_count?: number
           attempts?: number | null
           created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
+          event_id?: string | null
           event_type: string
           id?: string
           last_error?: string | null
+          max_attempts?: number
+          next_retry_at?: string | null
           payload?: Json | null
+          request_headers?: Json
+          response_body?: string | null
+          response_headers?: Json | null
+          response_status?: number | null
+          response_time_ms?: number | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["webhook_delivery_status"] | null
           subscription_id: string
@@ -7523,12 +7563,23 @@ export type Database = {
           webhook_id?: string | null
         }
         Update: {
+          attempt_count?: number
           attempts?: number | null
           created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
+          event_id?: string | null
           event_type?: string
           id?: string
           last_error?: string | null
+          max_attempts?: number
+          next_retry_at?: string | null
           payload?: Json | null
+          request_headers?: Json
+          response_body?: string | null
+          response_headers?: Json | null
+          response_status?: number | null
+          response_time_ms?: number | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["webhook_delivery_status"] | null
           subscription_id?: string

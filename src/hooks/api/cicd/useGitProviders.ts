@@ -142,7 +142,7 @@ export const useGitLabInstances = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: gitlabInstanceKeys.list({ pagination, sort, filters }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('gitlab_instance')
         .select('*', { count: 'exact' });
 
@@ -173,7 +173,7 @@ export const useGitLabInstance = (instanceId: string, options: { enabled?: boole
   return useQuery({
     queryKey: gitlabInstanceKeys.detail(instanceId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('gitlab_instance')
         .select('*')
         .eq('id', instanceId)
@@ -208,7 +208,7 @@ export const useGitProviders = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: gitProviderKeys.list({ pagination, sort, filters }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('git_provider')
         .select('*', { count: 'exact' });
 
@@ -239,7 +239,7 @@ export const useGitProvider = (providerId: string, options: { enabled?: boolean 
   return useQuery({
     queryKey: gitProviderKeys.detail(providerId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('git_provider')
         .select('*')
         .eq('id', providerId)
@@ -259,7 +259,7 @@ export const useGitProvidersByType = (type: GitProviderType) => {
   return useQuery({
     queryKey: gitProviderQueryKeys.byType(type),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('git_provider')
         .select('*')
         .eq('type', type)
@@ -294,7 +294,7 @@ export const useRepoBindings = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: repoBindingKeys.list({ pagination, sort, filters }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('repo_binding')
         .select(select, { count: 'exact' });
 
@@ -325,7 +325,7 @@ export const useRepoBinding = (bindingId: string, options: { enabled?: boolean }
   return useQuery({
     queryKey: repoBindingKeys.detail(bindingId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('repo_binding')
         .select('*, provider:git_provider(id, name, type), project(id, name, slug)')
         .eq('id', bindingId)
@@ -345,7 +345,7 @@ export const useRepoBindingsByProject = (projectId: string) => {
   return useQuery({
     queryKey: repoBindingQueryKeys.byProject(projectId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('repo_binding')
         .select('*, provider:git_provider(id, name, type)')
         .eq('project_id', projectId)
@@ -365,7 +365,7 @@ export const useRepoBindingsByProvider = (providerId: string) => {
   return useQuery({
     queryKey: repoBindingQueryKeys.byProvider(providerId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('repo_binding')
         .select('*, project(id, name, slug)')
         .eq('provider_id', providerId)
@@ -392,7 +392,7 @@ export const useCreateGitLabInstance = (
 
   return useMutation({
     mutationFn: async (instance: GitLabInstanceInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('gitlab_instance')
         .insert(instance)
         .select()
@@ -420,7 +420,7 @@ export const useUpdateGitLabInstance = (
 
   return useMutation({
     mutationFn: async ({ id, updates }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('gitlab_instance')
         .update(updates)
         .eq('id', id)
@@ -450,7 +450,7 @@ export const useDeleteGitLabInstance = (
 
   return useMutation({
     mutationFn: async (instanceId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('gitlab_instance')
         .delete()
         .eq('id', instanceId);
@@ -480,7 +480,7 @@ export const useCreateGitProvider = (
 
   return useMutation({
     mutationFn: async (provider: GitProviderInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('git_provider')
         .insert(provider)
         .select()
@@ -508,7 +508,7 @@ export const useUpdateGitProvider = (
 
   return useMutation({
     mutationFn: async ({ id, updates }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('git_provider')
         .update(updates)
         .eq('id', id)
@@ -538,7 +538,7 @@ export const useDeleteGitProvider = (
 
   return useMutation({
     mutationFn: async (providerId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('git_provider')
         .delete()
         .eq('id', providerId);
@@ -568,7 +568,7 @@ export const useCreateRepoBinding = (
 
   return useMutation({
     mutationFn: async (binding: RepoBindingInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('repo_binding')
         .insert(binding)
         .select()
@@ -598,7 +598,7 @@ export const useUpdateRepoBinding = (
 
   return useMutation({
     mutationFn: async ({ id, updates }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('repo_binding')
         .update(updates)
         .eq('id', id)
@@ -628,7 +628,7 @@ export const useDeleteRepoBinding = (
 
   return useMutation({
     mutationFn: async (bindingId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('repo_binding')
         .delete()
         .eq('id', bindingId);
