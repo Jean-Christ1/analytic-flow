@@ -490,7 +490,7 @@ export const useActivityStats = (projectId?: string, days: number = 30) => {
       if (error) throw error;
 
       // Aggregate by date
-      const aggregations = (data || []).reduce((acc, activity) => {
+      const aggregations = ((data || []) as any[]).reduce((acc: any, activity: any) => {
         const date = activity.created_at.split('T')[0];
         if (!acc[date]) {
           acc[date] = { date, count: 0, byEventType: {} as Record<ActivityEventType, number> };
