@@ -133,7 +133,7 @@ export const useProjects = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: projectKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('project')
         .select(select, { count: 'exact' });
 
@@ -190,7 +190,7 @@ export const useInfiniteProjects = (
   return useInfiniteQuery({
     queryKey: projectKeys.infinite({ sort, filters, search }),
     queryFn: async ({ pageParam = 0 }) => {
-      let query = supabase
+      let query = (supabase as any)
         .from('project')
         .select(select, { count: 'exact' });
 
@@ -259,7 +259,7 @@ export const useProject = (
     queryFn: async () => {
       if (!id) throw new Error('Project ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('project')
         .select(select)
         .eq('id', id)
@@ -289,7 +289,7 @@ export const useProjectBySlug = (
     queryFn: async () => {
       if (!slug) throw new Error('Project slug is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('project')
         .select(select)
         .eq('slug', slug)
@@ -384,7 +384,7 @@ export const useCreateProject = (
 
   return useMutation({
     mutationFn: async (input: ProjectInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('project')
         .insert(input)
         .select()
@@ -417,7 +417,7 @@ export const useUpdateProject = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: ProjectUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('project')
         .update(data)
         .eq('id', id)
@@ -452,7 +452,7 @@ export const useDeleteProject = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('project')
         .delete()
         .eq('id', id);
@@ -484,7 +484,7 @@ export const useArchiveProject = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('project')
         .update({
           lifecycle: 'archived' as ProjectLifecycle,
@@ -521,7 +521,7 @@ export const useRestoreProject = (
 
   return useMutation({
     mutationFn: async ({ id, lifecycle = 'development' }: { id: string; lifecycle?: ProjectLifecycle }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('project')
         .update({
           lifecycle,
@@ -571,7 +571,7 @@ export const useUpdateProjectProgress = (
         updates.progress_status = progress_status;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('project')
         .update(updates)
         .eq('id', id)
@@ -605,7 +605,7 @@ export const useUpdateProjectTags = (
 
   return useMutation({
     mutationFn: async ({ id, tags }: { id: string; tags: string[] }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('project')
         .update({ tags })
         .eq('id', id)
@@ -638,7 +638,7 @@ export const useTransferProjectOwnership = (
 
   return useMutation({
     mutationFn: async ({ id, newOwnerId }: { id: string; newOwnerId: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('project')
         .update({ owner_id: newOwnerId })
         .eq('id', id)

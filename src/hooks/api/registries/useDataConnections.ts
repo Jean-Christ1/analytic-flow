@@ -197,7 +197,7 @@ export const useDataConnections = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: dataConnectionKeys.list({ pagination, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('data_connection')
         .select(select, { count: 'exact' });
 
@@ -236,7 +236,7 @@ export const useDataConnection = (connectionId: string, options: { enabled?: boo
   return useQuery({
     queryKey: dataConnectionKeys.detail(connectionId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_connection')
         .select('*, creator:created_by(id, display_name, email)')
         .eq('id', connectionId)
@@ -256,7 +256,7 @@ export const useDataConnectionByName = (name: string, options: { enabled?: boole
   return useQuery({
     queryKey: [...dataConnectionKeys.all, 'name', name] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_connection')
         .select('*')
         .eq('name', name)
@@ -276,7 +276,7 @@ export const useDataConnectionsByType = (type: DataConnectionType) => {
   return useQuery({
     queryKey: dataConnectionQueryKeys.byType(type),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_connection')
         .select('*')
         .eq('type', type)
@@ -295,7 +295,7 @@ export const useDataConnectionsByStatus = (status: ConnectionTestStatus) => {
   return useQuery({
     queryKey: dataConnectionQueryKeys.byStatus(status),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_connection')
         .select('*')
         .eq('test_status', status)
@@ -314,7 +314,7 @@ export const useWorkingConnections = () => {
   return useQuery({
     queryKey: dataConnectionQueryKeys.working(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_connection')
         .select('*')
         .eq('test_status', 'success')
@@ -333,7 +333,7 @@ export const useFailedConnections = () => {
   return useQuery({
     queryKey: dataConnectionQueryKeys.failed(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_connection')
         .select('*')
         .eq('test_status', 'failed')
@@ -352,7 +352,7 @@ export const useSearchDataConnections = (searchTerm: string) => {
   return useQuery({
     queryKey: [...dataConnectionKeys.all, 'search', searchTerm] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_connection')
         .select('*')
         .ilike('name', `%${searchTerm}%`)
@@ -379,7 +379,7 @@ export const useCreateDataConnection = (
 
   return useMutation({
     mutationFn: async (connection: DataConnectionInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_connection')
         .insert(connection)
         .select()
@@ -408,7 +408,7 @@ export const useUpdateDataConnection = (
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: DataConnectionUpdate }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_connection')
         .update(updates)
         .eq('id', id)
@@ -438,7 +438,7 @@ export const useDeleteDataConnection = (
 
   return useMutation({
     mutationFn: async (connectionId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('data_connection')
         .delete()
         .eq('id', connectionId);
@@ -464,7 +464,7 @@ export const useUpdateConnectionConfig = (
 
   return useMutation({
     mutationFn: async ({ id, config }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_connection')
         .update({ config })
         .eq('id', id)
@@ -496,7 +496,7 @@ export const useUpdateTestStatus = (
 
   return useMutation({
     mutationFn: async ({ id, testStatus }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_connection')
         .update({
           test_status: testStatus,
@@ -531,7 +531,7 @@ export const useUpdateTestQuery = (
 
   return useMutation({
     mutationFn: async ({ id, testQuery }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_connection')
         .update({ test_query: testQuery })
         .eq('id', id)
@@ -560,7 +560,7 @@ export const useUpdateConnectionSecret = (
 
   return useMutation({
     mutationFn: async ({ id, secretRefId }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('data_connection')
         .update({ secret_ref_id: secretRefId })
         .eq('id', id)

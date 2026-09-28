@@ -147,7 +147,7 @@ export const useComments = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: commentKeys.list({ pagination, sort, filters }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('comment')
         .select('*, user:profile(id, email, full_name, avatar_url)', { count: 'exact' });
 
@@ -189,7 +189,7 @@ export const useCommentsByEntity = (
   return useQuery({
     queryKey: commentQueryKeys.byEntity(entityType, entityId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('comment')
         .select('*, user:profile(id, email, full_name, avatar_url)', { count: 'exact' })
         .eq('entity_type', entityType)
@@ -218,7 +218,7 @@ export const useInfiniteCommentsByEntity = (
   return useInfiniteQuery({
     queryKey: [...commentQueryKeys.byEntity(entityType, entityId), 'infinite'] as const,
     queryFn: async ({ pageParam = 0 }) => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('comment')
         .select('*, user:profile(id, email, full_name, avatar_url)', { count: 'exact' })
         .eq('entity_type', entityType)
@@ -246,7 +246,7 @@ export const useComment = (commentId: string, options: { enabled?: boolean } = {
   return useQuery({
     queryKey: commentKeys.detail(commentId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('comment')
         .select(`
           *,
@@ -271,7 +271,7 @@ export const useCommentThread = (commentId: string, options: { enabled?: boolean
     queryKey: commentQueryKeys.thread(commentId),
     queryFn: async () => {
       // Fetch parent comment
-      const { data: parent, error: parentError } = await supabase
+      const { data: parent, error: parentError } = await (supabase as any)
         .from('comment')
         .select('*, user:profile(id, email, full_name, avatar_url)')
         .eq('id', commentId)
@@ -280,7 +280,7 @@ export const useCommentThread = (commentId: string, options: { enabled?: boolean
       if (parentError) throw parentError;
 
       // Fetch replies
-      const { data: replies, error: repliesError } = await supabase
+      const { data: replies, error: repliesError } = await (supabase as any)
         .from('comment')
         .select('*, user:profile(id, email, full_name, avatar_url)')
         .eq('parent_id', commentId)
@@ -304,7 +304,7 @@ export const useUnresolvedComments = (entityType: CommentableEntity, entityId: s
   return useQuery({
     queryKey: commentQueryKeys.unresolved(entityType, entityId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('comment')
         .select('*, user:profile(id, email, full_name, avatar_url)')
         .eq('entity_type', entityType)
@@ -330,7 +330,7 @@ export const useCommentsByUser = (userId: string, pagination?: PaginationParams)
   return useQuery({
     queryKey: commentQueryKeys.byUser(userId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('comment')
         .select('*', { count: 'exact' })
         .eq('user_id', userId)
@@ -355,7 +355,7 @@ export const useCommentMentions = (userId: string, pagination?: PaginationParams
   return useQuery({
     queryKey: commentQueryKeys.mentions(userId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('comment')
         .select('*, user:profile(id, email, full_name, avatar_url)', { count: 'exact' })
         .contains('mentions', [userId])
@@ -383,7 +383,7 @@ export const useCreateComment = (
 
   return useMutation({
     mutationFn: async (comment: CommentInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('comment')
         .insert(comment)
         .select()
@@ -418,7 +418,7 @@ export const useUpdateComment = (
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: CommentUpdate }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('comment')
         .update({ ...updates, edited_at: new Date().toISOString() })
         .eq('id', id)
@@ -450,7 +450,7 @@ export const useDeleteComment = (
 
   return useMutation({
     mutationFn: async ({ id }: { id: string; entityType: CommentableEntity; entityId: string }) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('comment')
         .delete()
         .eq('id', id);
@@ -478,7 +478,7 @@ export const useResolveComment = (
 
   return useMutation({
     mutationFn: async ({ id, resolvedBy }: { id: string; resolvedBy: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('comment')
         .update({
           is_resolved: true,
@@ -517,7 +517,7 @@ export const useUnresolveComment = (
 
   return useMutation({
     mutationFn: async (commentId: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('comment')
         .update({
           is_resolved: false,
@@ -553,7 +553,7 @@ export const useAddReply = (
 
   return useMutation({
     mutationFn: async ({ parentId, ...reply }: Omit<CommentInsert, 'parent_id'> & { parentId: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('comment')
         .insert({ ...reply, parent_id: parentId })
         .select()

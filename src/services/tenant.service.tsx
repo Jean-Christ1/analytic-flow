@@ -89,7 +89,7 @@ class TenantService {
    * Fetch tenant by ID
    */
   async getTenant(id: string): Promise<Tenant | null> {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('tenant')
       .select('*')
       .eq('id', id)
@@ -107,7 +107,7 @@ class TenantService {
    * Fetch tenant by slug
    */
   async getTenantBySlug(slug: string): Promise<Tenant | null> {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('tenant')
       .select('*')
       .eq('slug', slug)
@@ -125,7 +125,7 @@ class TenantService {
    * Create a new tenant
    */
   async createTenant(data: TenantCreateData): Promise<Tenant | null> {
-    const { data: result, error } = await supabase
+    const { data: result, error } = await (supabase as any)
       .from('tenant')
       .insert({
         name: data.name,
@@ -155,7 +155,7 @@ class TenantService {
     if (data.status !== undefined) updateData.status = data.status;
     if (data.settings !== undefined) {
       // Merge settings
-      const { data: current } = await supabase
+      const { data: current } = await (supabase as any)
         .from('tenant')
         .select('settings')
         .eq('id', id)
@@ -167,7 +167,7 @@ class TenantService {
       };
     }
 
-    const { data: result, error } = await supabase
+    const { data: result, error } = await (supabase as any)
       .from('tenant')
       .update(updateData)
       .eq('id', id)
@@ -194,23 +194,23 @@ class TenantService {
       runsResult,
       modelsResult,
     ] = await Promise.all([
-      supabase
+      (supabase as any)
         .from('project')
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', tenantId),
-      supabase
+      (supabase as any)
         .from('user_account')
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', tenantId),
-      supabase
+      (supabase as any)
         .from('experiment')
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', tenantId),
-      supabase
+      (supabase as any)
         .from('run')
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', tenantId),
-      supabase
+      (supabase as any)
         .from('model')
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', tenantId),
@@ -243,7 +243,7 @@ class TenantService {
     tenantId: string,
     flags: Record<string, boolean>
   ): Promise<void> {
-    const { data: current } = await supabase
+    const { data: current } = await (supabase as any)
       .from('tenant')
       .select('feature_flags')
       .eq('id', tenantId)
@@ -254,7 +254,7 @@ class TenantService {
       ...flags,
     };
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('tenant')
       .update({ feature_flags: updatedFlags })
       .eq('id', tenantId);

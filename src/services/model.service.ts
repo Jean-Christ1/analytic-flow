@@ -92,7 +92,7 @@ class ModelService {
    * Get model with all details
    */
   async getModelInfo(modelId: string): Promise<ModelInfo | null> {
-    const { data: model, error } = await supabase
+    const { data: model, error } = await (supabase as any)
       .from('model')
       .select(`
         *,
@@ -104,7 +104,7 @@ class ModelService {
     if (error || !model) return null;
 
     // Get version counts
-    const { data: versions } = await supabase
+    const { data: versions } = await (supabase as any)
       .from('model_version')
       .select('version, status')
       .eq('model_id', modelId)
@@ -134,7 +134,7 @@ class ModelService {
    * Get model version details
    */
   async getModelVersionInfo(versionId: string): Promise<ModelVersionInfo | null> {
-    const { data: version, error } = await supabase
+    const { data: version, error } = await (supabase as any)
       .from('model_version')
       .select(`
         *,
@@ -173,13 +173,13 @@ class ModelService {
     } = {}
   ): Promise<ModelVersionInfo> {
     // Get run metrics for the model version
-    const { data: run } = await supabase
+    const { data: run } = await (supabase as any)
       .from('run')
       .select('metrics_summary, tenant_id')
       .eq('id', sourceRunId)
       .single();
 
-    const { data: version, error } = await supabase
+    const { data: version, error } = await (supabase as any)
       .from('model_version')
       .insert({
         tenant_id: run?.tenant_id,
@@ -220,7 +220,7 @@ class ModelService {
     versionId: string,
     approverNotes?: string
   ): Promise<void> {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('model_version')
       .update({
         status: 'approved',
@@ -244,7 +244,7 @@ class ModelService {
     versionId: string,
     reason?: string
   ): Promise<void> {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('model_version')
       .update({
         status: 'deprecated',
@@ -265,7 +265,7 @@ class ModelService {
    */
   async deployModel(config: ModelDeploymentConfig): Promise<string> {
     // Get model version details
-    const { data: version } = await supabase
+    const { data: version } = await (supabase as any)
       .from('model_version')
       .select(`
         *,
@@ -281,7 +281,7 @@ class ModelService {
     const model = version.model as { tenant_id: string; project_id: string };
 
     // Create deployment record
-    const { data: deployment, error } = await supabase
+    const { data: deployment, error } = await (supabase as any)
       .from('model_deployment')
       .insert({
         tenant_id: model.tenant_id,
@@ -323,7 +323,7 @@ class ModelService {
     replicas: { ready: number; desired: number };
     metrics: ModelServingMetrics | null;
   }> {
-    const { data: deployment } = await supabase
+    const { data: deployment } = await (supabase as any)
       .from('model_deployment')
       .select('*')
       .eq('id', deploymentId)
@@ -354,7 +354,7 @@ class ModelService {
     deploymentId: string,
     replicas: number
   ): Promise<void> {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('model_deployment')
       .update({
         scaling: supabase.sql`
@@ -379,7 +379,7 @@ class ModelService {
     deploymentId: string,
     targetVersionId?: string
   ): Promise<void> {
-    const { data: deployment } = await supabase
+    const { data: deployment } = await (supabase as any)
       .from('model_deployment')
       .select('model_version_id')
       .eq('id', deploymentId)
@@ -391,7 +391,7 @@ class ModelService {
 
     // Find previous version if not specified
     if (!targetVersionId) {
-      const { data: currentVersion } = await supabase
+      const { data: currentVersion } = await (supabase as any)
         .from('model_version')
         .select('model_id, version')
         .eq('id', deployment.model_version_id)
@@ -401,7 +401,7 @@ class ModelService {
         throw new Error('Current version not found');
       }
 
-      const { data: previousVersion } = await supabase
+      const { data: previousVersion } = await (supabase as any)
         .from('model_version')
         .select('id')
         .eq('model_id', currentVersion.model_id)
@@ -418,7 +418,7 @@ class ModelService {
     }
 
     // Update deployment to target version
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('model_deployment')
       .update({
         model_version_id: targetVersionId,
@@ -440,7 +440,7 @@ class ModelService {
   async deleteDeployment(deploymentId: string): Promise<void> {
     // TODO: Delete Kubernetes resources first
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('model_deployment')
       .delete()
       .eq('id', deploymentId);

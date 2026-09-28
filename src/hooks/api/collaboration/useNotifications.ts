@@ -191,7 +191,7 @@ export const useNotifications = (userId: string, options: ListQueryOptions = {})
   return useQuery({
     queryKey: notificationKeys.list({ pagination, sort, filters }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('notification')
         .select('*', { count: 'exact' })
         .eq('user_id', userId)
@@ -229,7 +229,7 @@ export const useInfiniteNotifications = (userId: string, options: { enabled?: bo
   return useInfiniteQuery({
     queryKey: [...notificationQueryKeys.byUser(userId), 'infinite'] as const,
     queryFn: async ({ pageParam = 0 }) => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('notification')
         .select('*', { count: 'exact' })
         .eq('user_id', userId)
@@ -256,7 +256,7 @@ export const useUnreadNotifications = (userId: string, limit: number = 10) => {
   return useQuery({
     queryKey: notificationQueryKeys.unread(userId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('notification')
         .select('*', { count: 'exact' })
         .eq('user_id', userId)
@@ -282,7 +282,7 @@ export const useUnreadCount = (userId: string) => {
   return useQuery({
     queryKey: [...notificationQueryKeys.unread(userId), 'count'] as const,
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { count, error } = await (supabase as any)
         .from('notification')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', userId)
@@ -312,7 +312,7 @@ export const useNotificationsByType = (
   return useQuery({
     queryKey: [...notificationQueryKeys.byType(type), userId] as const,
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('notification')
         .select('*', { count: 'exact' })
         .eq('user_id', userId)
@@ -335,7 +335,7 @@ export const useHighPriorityNotifications = (userId: string) => {
   return useQuery({
     queryKey: [...notificationQueryKeys.byPriority('high'), userId] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('notification')
         .select('*')
         .eq('user_id', userId)
@@ -363,7 +363,7 @@ export const useArchivedNotifications = (userId: string, pagination?: Pagination
   return useQuery({
     queryKey: notificationQueryKeys.archived(userId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('notification')
         .select('*', { count: 'exact' })
         .eq('user_id', userId)
@@ -386,7 +386,7 @@ export const useNotificationStats = (userId: string) => {
     queryKey: notificationQueryKeys.stats(userId),
     queryFn: async () => {
       // Get total and unread counts
-      const { count: total, error: totalError } = await supabase
+      const { count: total, error: totalError } = await (supabase as any)
         .from('notification')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', userId)
@@ -394,7 +394,7 @@ export const useNotificationStats = (userId: string) => {
 
       if (totalError) throw totalError;
 
-      const { count: unread, error: unreadError } = await supabase
+      const { count: unread, error: unreadError } = await (supabase as any)
         .from('notification')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', userId)
@@ -404,7 +404,7 @@ export const useNotificationStats = (userId: string) => {
       if (unreadError) throw unreadError;
 
       // Get counts by type (recent notifications only)
-      const { data: recentNotifications, error: recentError } = await supabase
+      const { data: recentNotifications, error: recentError } = await (supabase as any)
         .from('notification')
         .select('type, priority')
         .eq('user_id', userId)
@@ -439,7 +439,7 @@ export const useNotificationPreferences = (userId: string) => {
   return useQuery({
     queryKey: notificationQueryKeys.preferences(userId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('notification_preferences')
         .select('*')
         .eq('user_id', userId)
@@ -466,7 +466,7 @@ export const useCreateNotification = (
 
   return useMutation({
     mutationFn: async (notification: NotificationInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('notification')
         .insert(notification)
         .select()
@@ -495,7 +495,7 @@ export const useMarkAsRead = (
 
   return useMutation({
     mutationFn: async (notificationId: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('notification')
         .update({ is_read: true, read_at: new Date().toISOString() })
         .eq('id', notificationId)
@@ -525,7 +525,7 @@ export const useMarkAllAsRead = (
 
   return useMutation({
     mutationFn: async (userId: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('notification')
         .update({ is_read: true, read_at: new Date().toISOString() })
         .eq('user_id', userId)
@@ -555,7 +555,7 @@ export const useArchiveNotification = (
 
   return useMutation({
     mutationFn: async (notificationId: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('notification')
         .update({ is_archived: true, archived_at: new Date().toISOString() })
         .eq('id', notificationId)
@@ -586,7 +586,7 @@ export const useBulkArchive = (
 
   return useMutation({
     mutationFn: async ({ notificationIds }: { userId: string; notificationIds: string[] }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('notification')
         .update({ is_archived: true, archived_at: new Date().toISOString() })
         .in('id', notificationIds)
@@ -615,7 +615,7 @@ export const useDeleteNotification = (
 
   return useMutation({
     mutationFn: async ({ notificationId }: { notificationId: string; userId: string }) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('notification')
         .delete()
         .eq('id', notificationId);
@@ -641,7 +641,7 @@ export const useUpdateNotificationPreferences = (
 
   return useMutation({
     mutationFn: async ({ userId, preferences }: { userId: string; preferences: Partial<NotificationPreferences> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('notification_preferences')
         .upsert({ user_id: userId, ...preferences })
         .select()
@@ -671,7 +671,7 @@ export const useClearExpiredNotifications = (
     mutationFn: async (userId: string) => {
       const now = new Date().toISOString();
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('notification')
         .delete()
         .eq('user_id', userId)

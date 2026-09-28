@@ -140,7 +140,7 @@ export const useGovernanceIncidents = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: governanceIncidentKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('governance_incident')
         .select(select, { count: 'exact' });
 
@@ -208,7 +208,7 @@ export const useGovernanceIncident = (
     queryFn: async () => {
       if (!id) throw new Error('Governance Incident ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('governance_incident')
         .select(select)
         .eq('id', id)
@@ -327,7 +327,7 @@ export const useIncidentStats = (
   return useQuery({
     queryKey: ['governanceIncidents', 'stats', projectId],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('governance_incident')
         .select(`
           id,
@@ -432,7 +432,7 @@ export const useIncidentTrends = (
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - daysBack);
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('governance_incident')
         .select('id, detected_at, type, severity, status')
         .gte('detected_at', startDate.toISOString())
@@ -493,7 +493,7 @@ export const useCreateGovernanceIncident = (
         status: input.status ?? ('open' as GovernanceIncidentStatus),
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('governance_incident')
         .insert(insertData)
         .select()
@@ -527,7 +527,7 @@ export const useUpdateGovernanceIncident = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: GovernanceIncidentUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('governance_incident')
         .update(data)
         .eq('id', id)
@@ -562,7 +562,7 @@ export const useDeleteGovernanceIncident = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('governance_incident')
         .delete()
         .eq('id', id);
@@ -601,7 +601,7 @@ export const useTransitionIncidentStatus = (
         updateData.closed_at = new Date().toISOString();
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('governance_incident')
         .update(updateData)
         .eq('id', id)
@@ -636,7 +636,7 @@ export const useResolveIncident = (
 
   return useMutation({
     mutationFn: async ({ id, resolution }: { id: string; resolution: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('governance_incident')
         .update({
           status: 'resolved' as GovernanceIncidentStatus,
@@ -674,7 +674,7 @@ export const useCloseIncident = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('governance_incident')
         .update({
           status: 'closed' as GovernanceIncidentStatus,
@@ -712,7 +712,7 @@ export const useAssignIncident = (
 
   return useMutation({
     mutationFn: async ({ id, userId }: { id: string; userId: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('governance_incident')
         .update({ owner_user_id: userId })
         .eq('id', id)
@@ -746,7 +746,7 @@ export const useEscalateIncident = (
 
   return useMutation({
     mutationFn: async ({ id, severity }: { id: string; severity: IncidentSeverity }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('governance_incident')
         .update({ severity })
         .eq('id', id)

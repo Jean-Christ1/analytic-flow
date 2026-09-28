@@ -150,7 +150,7 @@ export const useNamespaceBindings = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: namespaceBindingKeys.list({ pagination, sort, filters }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('k8s_namespace_binding')
         .select(select, { count: 'exact' });
 
@@ -184,7 +184,7 @@ export const useNamespaceBinding = (bindingId: string, options: { enabled?: bool
   return useQuery({
     queryKey: namespaceBindingKeys.detail(bindingId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_namespace_binding')
         .select('*, cluster:k8s_cluster(id, name, provider, environment, status), project(id, name, slug)')
         .eq('id', bindingId)
@@ -211,7 +211,7 @@ export const useNamespaceBindingsByProject = (
   return useQuery({
     queryKey: namespaceBindingQueryKeys.byProject(projectId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('k8s_namespace_binding')
         .select('*, cluster:k8s_cluster(id, name, provider, environment, status)', { count: 'exact' })
         .eq('project_id', projectId)
@@ -239,7 +239,7 @@ export const useNamespaceBindingsByCluster = (
   return useQuery({
     queryKey: namespaceBindingQueryKeys.byCluster(clusterId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('k8s_namespace_binding')
         .select('*, project(id, name, slug)', { count: 'exact' })
         .eq('cluster_id', clusterId)
@@ -260,7 +260,7 @@ export const useNamespaceBindingsByStatus = (status: string) => {
   return useQuery({
     queryKey: namespaceBindingQueryKeys.byStatus(status),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_namespace_binding')
         .select('*, cluster:k8s_cluster(id, name, provider, environment)')
         .eq('status', status)
@@ -279,7 +279,7 @@ export const useCheckNamespaceExists = (clusterId: string, namespace: string) =>
   return useQuery({
     queryKey: [...namespaceBindingKeys.all, 'check', clusterId, namespace] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_namespace_binding')
         .select('id')
         .eq('cluster_id', clusterId)
@@ -307,7 +307,7 @@ export const useCreateNamespaceBinding = (
 
   return useMutation({
     mutationFn: async (binding: K8sNamespaceBindingInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_namespace_binding')
         .insert(binding)
         .select()
@@ -338,7 +338,7 @@ export const useUpdateNamespaceBinding = (
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: K8sNamespaceBindingUpdate }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_namespace_binding')
         .update(updates)
         .eq('id', id)
@@ -369,7 +369,7 @@ export const useDeleteNamespaceBinding = (
 
   return useMutation({
     mutationFn: async (bindingId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('k8s_namespace_binding')
         .delete()
         .eq('id', bindingId);
@@ -395,7 +395,7 @@ export const useUpdateResourceQuota = (
 
   return useMutation({
     mutationFn: async ({ id, resourceQuota }: { id: string; resourceQuota: ResourceQuotaSpec }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_namespace_binding')
         .update({ resource_quota: resourceQuota })
         .eq('id', id)
@@ -424,7 +424,7 @@ export const useUpdateLimitRange = (
 
   return useMutation({
     mutationFn: async ({ id, limitRange }: { id: string; limitRange: LimitRangeSpec }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_namespace_binding')
         .update({ limit_range: limitRange })
         .eq('id', id)
@@ -465,7 +465,7 @@ export const useUpdateSecurityProfiles = (
         updates.pod_security_profile = podSecurityProfile;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_namespace_binding')
         .update(updates)
         .eq('id', id)
@@ -494,7 +494,7 @@ export const useUpdateNamespaceBindingStatus = (
 
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_namespace_binding')
         .update({ status })
         .eq('id', id)

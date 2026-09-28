@@ -197,7 +197,7 @@ export const useEfficiencyKPISnapshots = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: efficiencyKPIKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('efficiency_kpi_snapshot')
         .select(select, { count: 'exact' });
 
@@ -257,7 +257,7 @@ export const useEfficiencyKPISnapshot = (
     queryFn: async () => {
       if (!id) throw new Error('Efficiency KPI Snapshot ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('efficiency_kpi_snapshot')
         .select(select)
         .eq('id', id)
@@ -316,7 +316,7 @@ export const useProjectEfficiencyMetrics = (
   return useQuery({
     queryKey: ['efficiencyKPIs', 'metrics', projectId, dateRange],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('efficiency_kpi_snapshot')
         .select('*')
         .eq('project_id', projectId)
@@ -352,7 +352,7 @@ export const useEfficiencyTrends = (
   return useQuery({
     queryKey: ['efficiencyKPIs', 'trends', projectId, dateRange, granularity],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('efficiency_kpi_snapshot')
         .select('*')
         .eq('project_id', projectId)
@@ -417,7 +417,7 @@ export const useProjectEfficiencyComparison = (
   return useQuery({
     queryKey: ['efficiencyKPIs', 'comparison', projectIds, dateRange],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('efficiency_kpi_snapshot')
         .select('*')
         .in('project_id', projectIds);
@@ -466,7 +466,7 @@ export const useTopPerformingProjects = (
   return useQuery({
     queryKey: ['efficiencyKPIs', 'topProjects', limit, dateRange],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('efficiency_kpi_snapshot')
         .select('project_id, success_rate, cost_amount, co2e_kg');
 
@@ -528,7 +528,7 @@ export const useGlobalEfficiencySummary = (
   return useQuery({
     queryKey: ['efficiencyKPIs', 'globalSummary', dateRange],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('efficiency_kpi_snapshot')
         .select('*');
 
@@ -587,7 +587,7 @@ export const useCreateEfficiencyKPISnapshot = (
 
   return useMutation({
     mutationFn: async (input: EfficiencyKPISnapshotInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('efficiency_kpi_snapshot')
         .insert(input)
         .select()
@@ -622,7 +622,7 @@ export const useUpdateEfficiencyKPISnapshot = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: EfficiencyKPISnapshotUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('efficiency_kpi_snapshot')
         .update(data)
         .eq('id', id)
@@ -658,7 +658,7 @@ export const useDeleteEfficiencyKPISnapshot = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('efficiency_kpi_snapshot')
         .delete()
         .eq('id', id);
@@ -700,7 +700,7 @@ export const useGenerateDailyKPISnapshot = (
       // 5. Calculate carbon from carbon_record table or estimate
 
       // Check if snapshot already exists
-      const { data: existing } = await supabase
+      const { data: existing } = await (supabase as any)
         .from('efficiency_kpi_snapshot')
         .select('id')
         .eq('project_id', projectId)
@@ -712,7 +712,7 @@ export const useGenerateDailyKPISnapshot = (
       }
 
       // For now, create a placeholder snapshot
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('efficiency_kpi_snapshot')
         .insert({
           project_id: projectId,
@@ -754,7 +754,7 @@ export const useBulkCreateEfficiencyKPISnapshots = (
 
   return useMutation({
     mutationFn: async (snapshots: EfficiencyKPISnapshotInsert[]) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('efficiency_kpi_snapshot')
         .insert(snapshots)
         .select();

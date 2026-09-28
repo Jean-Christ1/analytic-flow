@@ -159,7 +159,7 @@ export const useModels = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: modelKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('model')
         .select(select, { count: 'exact' });
 
@@ -225,7 +225,7 @@ export const useModel = (
     queryFn: async () => {
       if (!id) throw new Error('Model ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model')
         .select(select)
         .eq('id', id)
@@ -315,7 +315,7 @@ export const useModelVersions = (
     queryFn: async () => {
       if (!modelId) throw new Error('Model ID is required');
 
-      let query = supabase
+      let query = (supabase as any)
         .from('model_version')
         .select(select, { count: 'exact' })
         .eq('model_id', modelId);
@@ -371,7 +371,7 @@ export const useModelVersion = (
     queryFn: async () => {
       if (!id) throw new Error('Model version ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_version')
         .select(select)
         .eq('id', id)
@@ -399,7 +399,7 @@ export const useLatestModelVersion = (
     queryFn: async () => {
       if (!modelId) throw new Error('Model ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_version')
         .select('*')
         .eq('model_id', modelId)
@@ -429,7 +429,7 @@ export const useProductionModelVersion = (
     queryFn: async () => {
       if (!modelId) throw new Error('Model ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_version')
         .select('*')
         .eq('model_id', modelId)
@@ -464,7 +464,7 @@ export const useModelDeployments = (
     queryFn: async () => {
       if (!modelId) throw new Error('Model ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_deployment')
         .select('*')
         .eq('model_id', modelId)
@@ -496,7 +496,7 @@ export const useActiveDeployments = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: ['modelDeployments', 'active', { page, pageSize, sort }],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('model_deployment')
         .select(select, { count: 'exact' })
         .in('status', ['running', 'deploying', 'scaling']);
@@ -544,7 +544,7 @@ export const useCreateModel = (
 
   return useMutation({
     mutationFn: async (input: ModelInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model')
         .insert(input)
         .select()
@@ -576,7 +576,7 @@ export const useUpdateModel = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: ModelUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('model')
         .update(data)
         .eq('id', id)
@@ -610,7 +610,7 @@ export const useDeleteModel = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('model')
         .delete()
         .eq('id', id);
@@ -645,7 +645,7 @@ export const useCreateModelVersion = (
 
   return useMutation({
     mutationFn: async (input: ModelVersionInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_version')
         .insert(input)
         .select()
@@ -678,7 +678,7 @@ export const useTransitionModelVersionStage = (
 
   return useMutation({
     mutationFn: async ({ id, stage }: { id: string; stage: ModelStage }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_version')
         .update({ stage })
         .eq('id', id)
@@ -713,7 +713,7 @@ export const usePromoteToProduction = (
   return useMutation({
     mutationFn: async (versionId: string) => {
       // First, get the model_id for this version
-      const { data: version, error: fetchError } = await supabase
+      const { data: version, error: fetchError } = await (supabase as any)
         .from('model_version')
         .select('model_id')
         .eq('id', versionId)
@@ -722,14 +722,14 @@ export const usePromoteToProduction = (
       if (fetchError) throw fetchError;
 
       // Demote any existing production version
-      await supabase
+      await (supabase as any)
         .from('model_version')
         .update({ stage: 'archived' as ModelStage })
         .eq('model_id', version.model_id)
         .eq('stage', 'production');
 
       // Promote the new version
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_version')
         .update({ stage: 'production' as ModelStage })
         .eq('id', versionId)
@@ -802,7 +802,7 @@ export const usePromoteModelVersion = (
 
   return useMutation({
     mutationFn: async ({ versionId, stage }: { versionId: string; stage: ModelStage }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_version')
         .update({ stage })
         .eq('id', versionId)
@@ -846,7 +846,7 @@ export const useCreateModelDeployment = (
 
   return useMutation({
     mutationFn: async (input: ModelDeploymentInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_deployment')
         .insert({
           ...input,
@@ -892,7 +892,7 @@ export const useUpdateModelDeployment = (
 
   return useMutation({
     mutationFn: async ({ id, ...data }: { id: string } & ModelDeploymentUpdate) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('model_deployment')
         .update(data)
         .eq('id', id)
@@ -936,7 +936,7 @@ export const useDeleteModelDeployment = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('model_deployment')
         .delete()
         .eq('id', id);
@@ -977,7 +977,7 @@ export const useScaleModelDeployment = (
 
   return useMutation({
     mutationFn: async ({ id, replicas }: { id: string; replicas: number }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_deployment')
         .update({ replicas, status: 'scaling' as DeploymentStatus })
         .eq('id', id)
@@ -1021,7 +1021,7 @@ export const useStopModelDeployment = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_deployment')
         .update({ status: 'stopped' as DeploymentStatus })
         .eq('id', id)

@@ -165,7 +165,7 @@ export const useComplianceControls = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: complianceControlKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('compliance_control')
         .select(select, { count: 'exact' });
 
@@ -225,7 +225,7 @@ export const useComplianceControl = (
     queryFn: async () => {
       if (!id) throw new Error('Compliance Control ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compliance_control')
         .select(select)
         .eq('id', id)
@@ -290,7 +290,7 @@ export const useComplianceStatus = (
     queryKey: ['complianceControls', 'status', entityType, entityId, framework],
     queryFn: async () => {
       // Get all controls for the framework
-      let controlsQuery = supabase
+      let controlsQuery = (supabase as any)
         .from('compliance_control')
         .select('id, control_code, title, framework');
 
@@ -303,7 +303,7 @@ export const useComplianceStatus = (
       if (controlsError) throw controlsError;
 
       // Get evidence for this entity
-      const { data: evidence, error: evidenceError } = await supabase
+      const { data: evidence, error: evidenceError } = await (supabase as any)
         .from('compliance_evidence')
         .select('control_id, status')
         .eq('entity_type', entityType)
@@ -362,7 +362,7 @@ export const useAvailableFrameworks = (options: { enabled?: boolean } = {}) => {
   return useQuery({
     queryKey: ['complianceControls', 'frameworks'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compliance_control')
         .select('framework')
         .order('framework');
@@ -399,7 +399,7 @@ export const useCreateComplianceControl = (
 
   return useMutation({
     mutationFn: async (input: ComplianceControlInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compliance_control')
         .insert(input)
         .select()
@@ -432,7 +432,7 @@ export const useUpdateComplianceControl = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: ComplianceControlUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('compliance_control')
         .update(data)
         .eq('id', id)
@@ -466,7 +466,7 @@ export const useDeleteComplianceControl = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('compliance_control')
         .delete()
         .eq('id', id);
@@ -499,7 +499,7 @@ export const useInitializeEUAIActControls = (
   return useMutation({
     mutationFn: async ({ tenantId }: { tenantId: string }) => {
       // Check if controls already exist
-      const { data: existing, error: checkError } = await supabase
+      const { data: existing, error: checkError } = await (supabase as any)
         .from('compliance_control')
         .select('id')
         .eq('tenant_id', tenantId)
@@ -518,7 +518,7 @@ export const useInitializeEUAIActControls = (
         tenant_id: tenantId,
       }));
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compliance_control')
         .insert(controlsToInsert)
         .select();
@@ -550,7 +550,7 @@ export const useBulkCreateControls = (
 
   return useMutation({
     mutationFn: async (controls: ComplianceControlInsert[]) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compliance_control')
         .insert(controls)
         .select();

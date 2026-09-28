@@ -108,7 +108,7 @@ export const useObservabilityBackends = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: observabilityBackendKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('observability_backend')
         .select(select, { count: 'exact' });
 
@@ -168,7 +168,7 @@ export const useObservabilityBackend = (
     queryFn: async () => {
       if (!id) throw new Error('Observability Backend ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('observability_backend')
         .select(select)
         .eq('id', id)
@@ -256,7 +256,7 @@ export const useObservabilityBackendSummary = (options: { enabled?: boolean } = 
   return useQuery({
     queryKey: ['observabilityBackends', 'summary'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('observability_backend')
         .select('kind, type');
 
@@ -301,7 +301,7 @@ export const useObservabilityBackendHealth = (
       if (!id) throw new Error('Backend ID is required');
 
       // Get the backend details
-      const { data: backend, error } = await supabase
+      const { data: backend, error } = await (supabase as any)
         .from('observability_backend')
         .select('*')
         .eq('id', id)
@@ -340,7 +340,7 @@ export const useCreateObservabilityBackend = (
 
   return useMutation({
     mutationFn: async (input: ObservabilityBackendInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('observability_backend')
         .insert(input)
         .select()
@@ -373,7 +373,7 @@ export const useUpdateObservabilityBackend = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: ObservabilityBackendUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('observability_backend')
         .update(data)
         .eq('id', id)
@@ -408,7 +408,7 @@ export const useDeleteObservabilityBackend = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('observability_backend')
         .delete()
         .eq('id', id);

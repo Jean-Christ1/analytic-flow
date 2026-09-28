@@ -127,7 +127,7 @@ export const useRoles = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: roleKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('role')
         .select(select, { count: 'exact' });
 
@@ -187,7 +187,7 @@ export const useRole = (
     queryFn: async () => {
       if (!id) throw new Error('Role ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('role')
         .select(select)
         .eq('id', id)
@@ -215,7 +215,7 @@ export const useRoleWithPermissions = (
     queryFn: async () => {
       if (!id) throw new Error('Role ID is required');
 
-      const { data: role, error: roleError } = await supabase
+      const { data: role, error: roleError } = await (supabase as any)
         .from('role')
         .select('*')
         .eq('id', id)
@@ -223,7 +223,7 @@ export const useRoleWithPermissions = (
 
       if (roleError) throw roleError;
 
-      const { data: rolePermissions, error: permError } = await supabase
+      const { data: rolePermissions, error: permError } = await (supabase as any)
         .from('role_permission')
         .select(`
           permission:permission_id(*)
@@ -288,7 +288,7 @@ export const usePermissions = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: permissionKeys.list({ page, pageSize, sort, filters }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('permission')
         .select(select, { count: 'exact' });
 
@@ -353,7 +353,7 @@ export const usePermissionsGrouped = (options: { enabled?: boolean } = {}) => {
   return useQuery({
     queryKey: ['permissions', 'grouped'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('permission')
         .select('*')
         .order('category', { ascending: true })
@@ -395,7 +395,7 @@ export const usePrincipalRoleBindings = (
     queryFn: async () => {
       if (!principalId) throw new Error('Principal ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('principal_role_binding')
         .select(`
           *,
@@ -427,7 +427,7 @@ export const useProjectRoleBindings = (
     queryFn: async () => {
       if (!projectId) throw new Error('Project ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('principal_role_binding')
         .select(`
           *,
@@ -457,7 +457,7 @@ export const useCreateRole = (
 
   return useMutation({
     mutationFn: async (input: RoleInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('role')
         .insert({ ...input, is_system_role: false })
         .select()
@@ -489,7 +489,7 @@ export const useUpdateRole = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: RoleUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('role')
         .update(data)
         .eq('id', id)
@@ -525,7 +525,7 @@ export const useDeleteRole = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('role')
         .delete()
         .eq('id', id)
@@ -557,7 +557,7 @@ export const useAddRolePermission = (
 
   return useMutation({
     mutationFn: async ({ roleId, permissionId }: { roleId: string; permissionId: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('role_permission')
         .insert({ role_id: roleId, permission_id: permissionId })
         .select()
@@ -589,7 +589,7 @@ export const useRemoveRolePermission = (
 
   return useMutation({
     mutationFn: async ({ roleId, permissionId }: { roleId: string; permissionId: string }) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('role_permission')
         .delete()
         .eq('role_id', roleId)
@@ -622,7 +622,7 @@ export const useSetRolePermissions = (
   return useMutation({
     mutationFn: async ({ roleId, permissionIds }: { roleId: string; permissionIds: string[] }) => {
       // Delete existing permissions
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = await (supabase as any)
         .from('role_permission')
         .delete()
         .eq('role_id', roleId);
@@ -631,7 +631,7 @@ export const useSetRolePermissions = (
 
       // Insert new permissions
       if (permissionIds.length > 0) {
-        const { error: insertError } = await supabase
+        const { error: insertError } = await (supabase as any)
           .from('role_permission')
           .insert(permissionIds.map(pid => ({ role_id: roleId, permission_id: pid })));
 
@@ -666,7 +666,7 @@ export const useAssignRole = (
 
   return useMutation({
     mutationFn: async (input: PrincipalRoleBindingInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('principal_role_binding')
         .insert(input)
         .select()
@@ -701,7 +701,7 @@ export const useRevokeRole = (
 
   return useMutation({
     mutationFn: async (bindingId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('principal_role_binding')
         .delete()
         .eq('id', bindingId);

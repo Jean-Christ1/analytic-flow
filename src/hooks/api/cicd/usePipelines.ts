@@ -684,7 +684,6 @@ export const useRetryJob = (
           duration_sec: null,
           failure_reason: null,
           exit_code: null,
-          retry_count: supabase.rpc('increment', { x: 1 }) as unknown as number,
         })
         .eq('id', jobId)
         .select()

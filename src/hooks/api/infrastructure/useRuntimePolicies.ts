@@ -135,7 +135,7 @@ export const useRuntimePolicies = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: runtimePolicyKeys.list({ pagination, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('runtime_policy')
         .select(select, { count: 'exact' });
 
@@ -174,7 +174,7 @@ export const useRuntimePolicy = (policyId: string, options: { enabled?: boolean 
   return useQuery({
     queryKey: runtimePolicyKeys.detail(policyId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .select('*')
         .eq('id', policyId)
@@ -194,7 +194,7 @@ export const useRuntimePolicyByName = (name: string, options: { enabled?: boolea
   return useQuery({
     queryKey: [...runtimePolicyKeys.all, 'name', name] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .select('*')
         .eq('name', name)
@@ -214,7 +214,7 @@ export const useRuntimePoliciesBySecurityProfile = (profile: PodSecurityProfile)
   return useQuery({
     queryKey: runtimePolicyQueryKeys.bySecurityProfile(profile),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .select('*')
         .eq('pod_security_profile', profile)
@@ -233,7 +233,7 @@ export const useRestrictedPolicies = () => {
   return useQuery({
     queryKey: runtimePolicyQueryKeys.restricted(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .select('*')
         .eq('pod_security_profile', 'restricted')
@@ -252,7 +252,7 @@ export const useBaselinePolicies = () => {
   return useQuery({
     queryKey: runtimePolicyQueryKeys.baseline(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .select('*')
         .eq('pod_security_profile', 'baseline')
@@ -271,7 +271,7 @@ export const useSearchRuntimePolicies = (searchTerm: string) => {
   return useQuery({
     queryKey: [...runtimePolicyKeys.all, 'search', searchTerm] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .select('*')
         .ilike('name', `%${searchTerm}%`)
@@ -291,7 +291,7 @@ export const useValidateImage = (policyId: string, imageName: string) => {
   return useQuery({
     queryKey: [...runtimePolicyKeys.all, 'validate', 'image', policyId, imageName] as const,
     queryFn: async () => {
-      const { data: policy, error } = await supabase
+      const { data: policy, error } = await (supabase as any)
         .from('runtime_policy')
         .select('allowed_images, allowed_registries')
         .eq('id', policyId)
@@ -339,7 +339,7 @@ export const useCreateRuntimePolicy = (
 
   return useMutation({
     mutationFn: async (policy: RuntimePolicyInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .insert(policy)
         .select()
@@ -370,7 +370,7 @@ export const useUpdateRuntimePolicy = (
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: RuntimePolicyUpdate }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .update(updates)
         .eq('id', id)
@@ -400,7 +400,7 @@ export const useDeleteRuntimePolicy = (
 
   return useMutation({
     mutationFn: async (policyId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('runtime_policy')
         .delete()
         .eq('id', policyId);
@@ -426,7 +426,7 @@ export const useUpdateAllowedImages = (
 
   return useMutation({
     mutationFn: async ({ id, allowedImages }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .update({ allowed_images: allowedImages })
         .eq('id', id)
@@ -456,7 +456,7 @@ export const useAddAllowedImage = (
   return useMutation({
     mutationFn: async ({ id, imagePattern }) => {
       // First fetch current policy
-      const { data: current, error: fetchError } = await supabase
+      const { data: current, error: fetchError } = await (supabase as any)
         .from('runtime_policy')
         .select('allowed_images')
         .eq('id', id)
@@ -469,7 +469,7 @@ export const useAddAllowedImage = (
         throw new Error('Image pattern already exists');
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .update({ allowed_images: [...currentImages, imagePattern] })
         .eq('id', id)
@@ -499,7 +499,7 @@ export const useRemoveAllowedImage = (
   return useMutation({
     mutationFn: async ({ id, imagePattern }) => {
       // First fetch current policy
-      const { data: current, error: fetchError } = await supabase
+      const { data: current, error: fetchError } = await (supabase as any)
         .from('runtime_policy')
         .select('allowed_images')
         .eq('id', id)
@@ -510,7 +510,7 @@ export const useRemoveAllowedImage = (
       const currentImages = current.allowed_images as string[];
       const updatedImages = currentImages.filter(img => img !== imagePattern);
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .update({ allowed_images: updatedImages })
         .eq('id', id)
@@ -539,7 +539,7 @@ export const useUpdateAllowedRegistries = (
 
   return useMutation({
     mutationFn: async ({ id, allowedRegistries }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .update({ allowed_registries: allowedRegistries })
         .eq('id', id)
@@ -568,7 +568,7 @@ export const useUpdateEgressRules = (
 
   return useMutation({
     mutationFn: async ({ id, egressRules }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .update({ egress_rules: egressRules })
         .eq('id', id)
@@ -597,7 +597,7 @@ export const useUpdateIngressRules = (
 
   return useMutation({
     mutationFn: async ({ id, ingressRules }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .update({ ingress_rules: ingressRules })
         .eq('id', id)
@@ -626,7 +626,7 @@ export const useUpdatePodSecurityProfile = (
 
   return useMutation({
     mutationFn: async ({ id, profile }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .update({ pod_security_profile: profile })
         .eq('id', id)
@@ -656,7 +656,7 @@ export const useUpdateEnvVarAllowlist = (
 
   return useMutation({
     mutationFn: async ({ id, envVarAllowlist }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .update({ env_var_allowlist: envVarAllowlist })
         .eq('id', id)
@@ -685,7 +685,7 @@ export const useUpdateSecretMountPolicy = (
 
   return useMutation({
     mutationFn: async ({ id, secretMountPolicy }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .update({ secret_mount_policy: secretMountPolicy })
         .eq('id', id)
@@ -715,7 +715,7 @@ export const useCloneRuntimePolicy = (
   return useMutation({
     mutationFn: async ({ sourceId, newName }) => {
       // First, fetch the source policy
-      const { data: source, error: fetchError } = await supabase
+      const { data: source, error: fetchError } = await (supabase as any)
         .from('runtime_policy')
         .select('*')
         .eq('id', sourceId)
@@ -736,7 +736,7 @@ export const useCloneRuntimePolicy = (
         secret_mount_policy: source.secret_mount_policy,
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('runtime_policy')
         .insert(newPolicy)
         .select()

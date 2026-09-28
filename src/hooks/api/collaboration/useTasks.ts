@@ -208,7 +208,7 @@ export const useTasks = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: taskKeys.list({ pagination, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('task')
         .select(`
           *,
@@ -261,7 +261,7 @@ export const useInfiniteTasks = (options: Omit<ListQueryOptions, 'pagination'> =
   return useInfiniteQuery({
     queryKey: taskKeys.infinite({ sort, filters, search }),
     queryFn: async ({ pageParam = 0 }) => {
-      let query = supabase
+      let query = (supabase as any)
         .from('task')
         .select(`
           *,
@@ -306,7 +306,7 @@ export const useTask = (taskId: string, options: { enabled?: boolean } = {}) => 
   return useQuery({
     queryKey: taskKeys.detail(taskId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task')
         .select(`
           *,
@@ -336,7 +336,7 @@ export const useTasksByProject = (projectId: string, pagination?: PaginationPara
   return useQuery({
     queryKey: taskQueryKeys.byProject(projectId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('task')
         .select(`
           *,
@@ -366,7 +366,7 @@ export const useTasksByAssignee = (assigneeId: string, pagination?: PaginationPa
   return useQuery({
     queryKey: taskQueryKeys.byAssignee(assigneeId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('task')
         .select(`
           *,
@@ -393,7 +393,7 @@ export const useTasksByStatus = (status: TaskStatus, projectId?: string) => {
   return useQuery({
     queryKey: [...taskQueryKeys.byStatus(status), projectId] as const,
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('task')
         .select(`
           *,
@@ -422,7 +422,7 @@ export const useTasksByPriority = (priority: TaskPriority, projectId?: string) =
   return useQuery({
     queryKey: [...taskQueryKeys.byPriority(priority), projectId] as const,
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('task')
         .select(`
           *,
@@ -452,7 +452,7 @@ export const useSubtasks = (parentTaskId: string) => {
   return useQuery({
     queryKey: taskQueryKeys.subtasks(parentTaskId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task')
         .select(`
           *,
@@ -475,7 +475,7 @@ export const useMyTasks = (userId: string) => {
   return useQuery({
     queryKey: taskQueryKeys.myTasks(userId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task')
         .select(`
           *,
@@ -503,7 +503,7 @@ export const useOverdueTasks = (projectId?: string) => {
     queryFn: async () => {
       const now = new Date().toISOString();
 
-      let query = supabase
+      let query = (supabase as any)
         .from('task')
         .select(`
           *,
@@ -538,7 +538,7 @@ export const useTaskDependencies = (taskId: string) => {
   return useQuery({
     queryKey: dependencyQueryKeys.byTask(taskId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task_dependency')
         .select(`
           *,
@@ -560,7 +560,7 @@ export const useBlockingTasks = (taskId: string) => {
   return useQuery({
     queryKey: dependencyQueryKeys.blocking(taskId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task_dependency')
         .select(`
           *,
@@ -583,7 +583,7 @@ export const useBlockedTasks = (taskId: string) => {
   return useQuery({
     queryKey: dependencyQueryKeys.blockedBy(taskId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task_dependency')
         .select(`
           *,
@@ -613,7 +613,7 @@ export const useCreateTask = (
 
   return useMutation({
     mutationFn: async (task: TaskInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task')
         .insert(task)
         .select()
@@ -655,7 +655,7 @@ export const useUpdateTask = (
         ...(updates.status && updates.status !== 'done' && { completed_at: null }),
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task')
         .update(finalUpdates)
         .eq('id', id)
@@ -686,7 +686,7 @@ export const useDeleteTask = (
 
   return useMutation({
     mutationFn: async (taskId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('task')
         .delete()
         .eq('id', taskId);
@@ -712,7 +712,7 @@ export const useAssignTask = (
 
   return useMutation({
     mutationFn: async ({ taskId, assigneeId }: { taskId: string; assigneeId: string | null }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task')
         .update({ assignee_id: assigneeId })
         .eq('id', taskId)
@@ -750,7 +750,7 @@ export const useUpdateTaskStatus = (
         completed_at: status === 'done' ? new Date().toISOString() : null,
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task')
         .update(updates)
         .eq('id', taskId)
@@ -781,7 +781,7 @@ export const useUpdateTaskPriority = (
 
   return useMutation({
     mutationFn: async ({ taskId, priority }: { taskId: string; priority: TaskPriority }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task')
         .update({ priority })
         .eq('id', taskId)
@@ -812,7 +812,7 @@ export const useLogTaskTime = (
   return useMutation({
     mutationFn: async ({ taskId, hours }: { taskId: string; hours: number }) => {
       // First get current actual_hours
-      const { data: current, error: fetchError } = await supabase
+      const { data: current, error: fetchError } = await (supabase as any)
         .from('task')
         .select('actual_hours')
         .eq('id', taskId)
@@ -822,7 +822,7 @@ export const useLogTaskTime = (
 
       const newHours = (current.actual_hours || 0) + hours;
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task')
         .update({ actual_hours: newHours })
         .eq('id', taskId)
@@ -855,7 +855,7 @@ export const useAddTaskDependency = (
 
   return useMutation({
     mutationFn: async (dependency: TaskDependencyInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task_dependency')
         .insert(dependency)
         .select()
@@ -884,7 +884,7 @@ export const useRemoveTaskDependency = (
 
   return useMutation({
     mutationFn: async ({ dependencyId }: { dependencyId: string; taskId: string }) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('task_dependency')
         .delete()
         .eq('id', dependencyId);

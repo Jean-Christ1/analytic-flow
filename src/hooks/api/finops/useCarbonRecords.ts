@@ -156,7 +156,7 @@ export const useCarbonRecords = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: carbonRecordKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('carbon_record')
         .select(select, { count: 'exact' });
 
@@ -216,7 +216,7 @@ export const useCarbonRecord = (
     queryFn: async () => {
       if (!id) throw new Error('Carbon Record ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('carbon_record')
         .select(select)
         .eq('id', id)
@@ -289,7 +289,7 @@ export const useCarbonSummary = (
   return useQuery({
     queryKey: ['carbonRecords', 'summary', dateRange, projectId],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('carbon_record')
         .select('co2e_kg, kwh, provider, region, attribution');
 
@@ -369,7 +369,7 @@ export const useCarbonTrends = (
   return useQuery({
     queryKey: ['carbonRecords', 'trends', dateRange, granularity, projectId],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('carbon_record')
         .select('start_time, co2e_kg, kwh, attribution')
         .gte('start_time', dateRange.start)
@@ -521,7 +521,7 @@ export const useCreateCarbonRecord = (
         co2eKg = input.kwh * intensity;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('carbon_record')
         .insert({ ...input, co2e_kg: co2eKg })
         .select()
@@ -555,7 +555,7 @@ export const useUpdateCarbonRecord = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: CarbonRecordUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('carbon_record')
         .update(data)
         .eq('id', id)
@@ -591,7 +591,7 @@ export const useDeleteCarbonRecord = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('carbon_record')
         .delete()
         .eq('id', id);
@@ -634,7 +634,7 @@ export const useBulkCreateCarbonRecords = (
         return { ...r, co2e_kg: r.kwh * intensity };
       });
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('carbon_record')
         .insert(recordsWithCO2e)
         .select();

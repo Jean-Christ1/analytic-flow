@@ -132,7 +132,7 @@ export const useCostRecords = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: costRecordKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('cost_record')
         .select(select, { count: 'exact' });
 
@@ -192,7 +192,7 @@ export const useCostRecord = (
     queryFn: async () => {
       if (!id) throw new Error('Cost Record ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cost_record')
         .select(select)
         .eq('id', id)
@@ -323,7 +323,7 @@ export const useCostAggregations = (
   return useQuery({
     queryKey: ['costRecords', 'aggregations', dateRange, granularity, { projectId, provider, service }],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('cost_record')
         .select('usage_start, cost_amount, service, provider')
         .gte('usage_start', dateRange.start)
@@ -426,7 +426,7 @@ export const useCostSummary = (
   return useQuery({
     queryKey: ['costRecords', 'summary', dateRange, projectId],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('cost_record')
         .select('cost_amount, provider, service, project_id');
 
@@ -496,7 +496,7 @@ export const useTopCostDrivers = (
   return useQuery({
     queryKey: ['costRecords', 'topDrivers', dateRange, limit],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cost_record')
         .select('resource_external_id, service, provider, cost_amount')
         .gte('usage_start', dateRange.start)
@@ -546,7 +546,7 @@ export const useCreateCostRecord = (
 
   return useMutation({
     mutationFn: async (input: CostRecordInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cost_record')
         .insert(input)
         .select()
@@ -580,7 +580,7 @@ export const useUpdateCostRecord = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: CostRecordUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('cost_record')
         .update(data)
         .eq('id', id)
@@ -616,7 +616,7 @@ export const useDeleteCostRecord = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('cost_record')
         .delete()
         .eq('id', id);
@@ -649,7 +649,7 @@ export const useBulkCreateCostRecords = (
 
   return useMutation({
     mutationFn: async (records: CostRecordInsert[]) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cost_record')
         .insert(records)
         .select();
@@ -682,7 +682,7 @@ export const useAllocateCostRecords = (
 
   return useMutation({
     mutationFn: async ({ recordIds, projectId }: { recordIds: string[]; projectId: string }) => {
-      const { error, count } = await supabase
+      const { error, count } = await (supabase as any)
         .from('cost_record')
         .update({ project_id: projectId })
         .in('id', recordIds);

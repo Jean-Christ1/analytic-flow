@@ -204,7 +204,7 @@ export const useEnvironments = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: environmentKeys.list({ pagination, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('environment')
         .select(select, { count: 'exact' });
 
@@ -253,7 +253,7 @@ export const useInfiniteEnvironments = (options: Omit<ListQueryOptions, 'paginat
   return useInfiniteQuery({
     queryKey: environmentKeys.infinite({ sort, filters, search }),
     queryFn: async ({ pageParam = 0 }) => {
-      let query = supabase
+      let query = (supabase as any)
         .from('environment')
         .select(select, { count: 'exact' });
 
@@ -296,7 +296,7 @@ export const useEnvironment = (envId: string, options: { enabled?: boolean } = {
   return useQuery({
     queryKey: environmentKeys.detail(envId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment')
         .select(`
           *,
@@ -325,7 +325,7 @@ export const useEnvironmentByName = (
   return useQuery({
     queryKey: [...environmentKeys.all, 'name', name, projectId] as const,
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('environment')
         .select('*')
         .eq('name', name);
@@ -352,7 +352,7 @@ export const useEnvironmentsByProject = (projectId: string) => {
   return useQuery({
     queryKey: environmentQueryKeys.byProject(projectId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment')
         .select('*')
         .eq('project_id', projectId)
@@ -372,7 +372,7 @@ export const useTenantWideEnvironments = () => {
   return useQuery({
     queryKey: environmentQueryKeys.tenantWide(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment')
         .select('*')
         .is('project_id', null)
@@ -391,7 +391,7 @@ export const useEnvironmentsByStatus = (status: EnvironmentStatus) => {
   return useQuery({
     queryKey: environmentQueryKeys.byStatus(status),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment')
         .select('*')
         .eq('status', status)
@@ -410,7 +410,7 @@ export const useDefaultEnvironment = (projectId?: string) => {
   return useQuery({
     queryKey: [...environmentQueryKeys.default(), projectId] as const,
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('environment')
         .select('*')
         .eq('is_default', true)
@@ -426,7 +426,7 @@ export const useDefaultEnvironment = (projectId?: string) => {
       }
 
       // Fall back to tenant-wide default
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment')
         .select('*')
         .eq('is_default', true)
@@ -447,7 +447,7 @@ export const useSearchEnvironments = (searchTerm: string) => {
   return useQuery({
     queryKey: [...environmentKeys.all, 'search', searchTerm] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment')
         .select('*, project:project_id(id, name, slug)')
         .ilike('name', `%${searchTerm}%`)
@@ -485,7 +485,7 @@ export const useEnvironmentBuilds = (
   return useQuery({
     queryKey: buildQueryKeys.byEnvironment(environmentId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('environment_build')
         .select('*', { count: 'exact' })
         .eq('environment_id', environmentId)
@@ -506,7 +506,7 @@ export const useEnvironmentBuild = (buildId: string, options: { enabled?: boolea
   return useQuery({
     queryKey: environmentBuildKeys.detail(buildId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment_build')
         .select('*, environment:environment_id(id, name, project_id)')
         .eq('id', buildId)
@@ -526,7 +526,7 @@ export const useLatestBuild = (environmentId: string) => {
   return useQuery({
     queryKey: buildQueryKeys.latest(environmentId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment_build')
         .select('*')
         .eq('environment_id', environmentId)
@@ -549,7 +549,7 @@ export const useRunningBuilds = () => {
   return useQuery({
     queryKey: buildQueryKeys.running(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment_build')
         .select('*, environment:environment_id(id, name, project_id)')
         .in('status', ['queued', 'running'])
@@ -569,7 +569,7 @@ export const useBuildsByStatus = (status: EnvironmentBuildStatus) => {
   return useQuery({
     queryKey: buildQueryKeys.byStatus(status),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment_build')
         .select('*, environment:environment_id(id, name, project_id)')
         .eq('status', status)
@@ -595,7 +595,7 @@ export const useCreateEnvironment = (
 
   return useMutation({
     mutationFn: async (env: EnvironmentInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment')
         .insert(env)
         .select()
@@ -629,7 +629,7 @@ export const useUpdateEnvironment = (
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: EnvironmentUpdate }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment')
         .update(updates)
         .eq('id', id)
@@ -659,7 +659,7 @@ export const useDeleteEnvironment = (
 
   return useMutation({
     mutationFn: async (envId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('environment')
         .delete()
         .eq('id', envId);
@@ -685,7 +685,7 @@ export const useUpdateEnvironmentStatus = (
 
   return useMutation({
     mutationFn: async ({ id, status }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment')
         .update({ status })
         .eq('id', id)
@@ -717,13 +717,13 @@ export const useSetDefaultEnvironment = (
     mutationFn: async ({ id, projectId }) => {
       // Unset existing default for this scope
       if (projectId) {
-        await supabase
+        await (supabase as any)
           .from('environment')
           .update({ is_default: false })
           .eq('project_id', projectId)
           .eq('is_default', true);
       } else {
-        await supabase
+        await (supabase as any)
           .from('environment')
           .update({ is_default: false })
           .is('project_id', null)
@@ -731,7 +731,7 @@ export const useSetDefaultEnvironment = (
       }
 
       // Set new default
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment')
         .update({ is_default: true })
         .eq('id', id)
@@ -760,7 +760,7 @@ export const useUpdateEnvironmentSpec = (
 
   return useMutation({
     mutationFn: async ({ id, spec }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment')
         .update({ spec })
         .eq('id', id)
@@ -793,7 +793,7 @@ export const useTriggerBuild = (
 
   return useMutation({
     mutationFn: async (build: EnvironmentBuildInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment_build')
         .insert(build)
         .select()
@@ -838,7 +838,7 @@ export const useUpdateBuildStatus = (
         updates.failure_reason = failureReason;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment_build')
         .update(updates)
         .eq('id', id)
@@ -875,7 +875,7 @@ export const useUpdateBuildImage = (
 
   return useMutation({
     mutationFn: async ({ id, imageName, imageTag, imageDigest }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('environment_build')
         .update({
           image_name: imageName,

@@ -130,7 +130,7 @@ export const useObservabilityLinks = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: observabilityLinkKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('observability_link')
         .select(select, { count: 'exact' });
 
@@ -190,7 +190,7 @@ export const useObservabilityLink = (
     queryFn: async () => {
       if (!id) throw new Error('Observability Link ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('observability_link')
         .select(select)
         .eq('id', id)
@@ -263,7 +263,7 @@ export const useRunObservabilityLinks = (
   return useQuery({
     queryKey: ['observabilityLinks', 'run', runId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('observability_link')
         .select('*, backend:observability_backend(kind, type, endpoint)')
         .eq('entity_type', 'run')
@@ -296,7 +296,7 @@ export const useDeploymentObservabilityLinks = (
   return useQuery({
     queryKey: ['observabilityLinks', 'deployment', deploymentId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('observability_link')
         .select('*, backend:observability_backend(kind, type, endpoint)')
         .eq('entity_type', 'model_deployment')
@@ -331,7 +331,7 @@ export const useBuildDeepLink = (
     queryFn: async () => {
       if (!linkId) throw new Error('Link ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('observability_link')
         .select('*, backend:observability_backend(kind, type, endpoint)')
         .eq('id', linkId)
@@ -409,7 +409,7 @@ export const useCreateObservabilityLink = (
 
   return useMutation({
     mutationFn: async (input: ObservabilityLinkInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('observability_link')
         .insert(input)
         .select()
@@ -444,7 +444,7 @@ export const useUpdateObservabilityLink = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: ObservabilityLinkUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('observability_link')
         .update(data)
         .eq('id', id)
@@ -479,7 +479,7 @@ export const useDeleteObservabilityLink = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('observability_link')
         .delete()
         .eq('id', id);
@@ -510,7 +510,7 @@ export const useBulkCreateObservabilityLinks = (
 
   return useMutation({
     mutationFn: async (links: ObservabilityLinkInsert[]) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('observability_link')
         .insert(links)
         .select();
@@ -553,7 +553,7 @@ export const useAutoProvisionObservabilityLinks = (
       // 3. Create links for each backend kind (logs, metrics, traces)
 
       // Get all backends
-      const { data: backends, error: backendError } = await supabase
+      const { data: backends, error: backendError } = await (supabase as any)
         .from('observability_backend')
         .select('id, kind, type, default_labels');
 
@@ -578,7 +578,7 @@ export const useAutoProvisionObservabilityLinks = (
         },
       }));
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('observability_link')
         .insert(linksToCreate)
         .select();

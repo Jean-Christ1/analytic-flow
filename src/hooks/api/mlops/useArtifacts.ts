@@ -180,7 +180,7 @@ export const useArtifacts = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: artifactKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('ml_artifact')
         .select(select, { count: 'exact' });
 
@@ -237,7 +237,7 @@ export const useInfiniteArtifacts = (
   return useInfiniteQuery({
     queryKey: artifactKeys.infinite({ sort, filters, search }),
     queryFn: async ({ pageParam = 0 }) => {
-      let query = supabase
+      let query = (supabase as any)
         .from('ml_artifact')
         .select(select, { count: 'exact' });
 
@@ -305,7 +305,7 @@ export const useArtifact = (
     queryFn: async () => {
       if (!id) throw new Error('Artifact ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_artifact')
         .select(select)
         .eq('id', id)
@@ -437,7 +437,7 @@ export const useArtifactTree = (
       // Recursive function to build tree
       // TODO: This should be a server-side function for performance
       const buildTree = async (id: string, depth: number): Promise<ArtifactTree> => {
-        const { data: artifact, error: artifactError } = await supabase
+        const { data: artifact, error: artifactError } = await (supabase as any)
           .from('ml_artifact')
           .select('*')
           .eq('id', id)
@@ -449,7 +449,7 @@ export const useArtifactTree = (
           return { artifact: artifact as Artifact, children: [] };
         }
 
-        const { data: children, error: childrenError } = await supabase
+        const { data: children, error: childrenError } = await (supabase as any)
           .from('ml_artifact')
           .select('*')
           .eq('parent_id', id)
@@ -486,7 +486,7 @@ export const useArtifactDownloadUrl = (
       if (!id) throw new Error('Artifact ID is required');
 
       // Fetch artifact to get storage info
-      const { data: artifact, error: artifactError } = await supabase
+      const { data: artifact, error: artifactError } = await (supabase as any)
         .from('ml_artifact')
         .select('storage_type, storage_uri')
         .eq('id', id)
@@ -533,7 +533,7 @@ export const useArtifactStorageStats = (
     queryKey: artifactQueryKeys.stats(scope),
     queryFn: async () => {
       // TODO: This should be a server-side function for performance
-      let query = supabase
+      let query = (supabase as any)
         .from('ml_artifact')
         .select('artifact_type, storage_type, size_bytes');
 
@@ -619,7 +619,7 @@ export const useCreateArtifact = (
 
   return useMutation({
     mutationFn: async (input: ArtifactInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_artifact')
         .insert(input)
         .select()
@@ -660,7 +660,7 @@ export const useBatchCreateArtifacts = (
 
   return useMutation({
     mutationFn: async (inputs: ArtifactInsert[]) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_artifact')
         .insert(inputs)
         .select();
@@ -702,7 +702,7 @@ export const useUpdateArtifact = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: ArtifactUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('ml_artifact')
         .update(data)
         .eq('id', id)
@@ -737,7 +737,7 @@ export const useDeleteArtifact = (
   return useMutation({
     mutationFn: async (id: string) => {
       // TODO: Also delete from storage (edge function)
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('ml_artifact')
         .delete()
         .eq('id', id);
@@ -769,7 +769,7 @@ export const useBatchDeleteArtifacts = (
   return useMutation({
     mutationFn: async (ids: string[]) => {
       // TODO: Also delete from storage (edge function)
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('ml_artifact')
         .delete()
         .in('id', ids);
@@ -800,7 +800,7 @@ export const useUpdateArtifactTags = (
 
   return useMutation({
     mutationFn: async ({ id, tags }: { id: string; tags: string[] }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_artifact')
         .update({ tags })
         .eq('id', id)
@@ -833,7 +833,7 @@ export const useMoveArtifact = (
 
   return useMutation({
     mutationFn: async ({ id, newParentId }: { id: string; newParentId: string | null }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_artifact')
         .update({ parent_id: newParentId })
         .eq('id', id)
@@ -876,7 +876,7 @@ export const useCopyArtifact = (
       newName?: string;
     }) => {
       // Fetch source artifact
-      const { data: source, error: sourceError } = await supabase
+      const { data: source, error: sourceError } = await (supabase as any)
         .from('ml_artifact')
         .select('*')
         .eq('id', sourceId)
@@ -912,7 +912,7 @@ export const useCopyArtifact = (
         created_by: source.created_by, // TODO: Use current user
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_artifact')
         .insert(newArtifact)
         .select()

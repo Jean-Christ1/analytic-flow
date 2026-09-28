@@ -101,7 +101,7 @@ export const useUsers = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: userKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('user_account')
         .select(select, { count: 'exact' });
 
@@ -161,7 +161,7 @@ export const useUser = (
     queryFn: async () => {
       if (!id) throw new Error('User ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('user_account')
         .select(select)
         .eq('id', id)
@@ -190,7 +190,7 @@ export const useUserWithRoles = (
       if (!id) throw new Error('User ID is required');
 
       // Fetch user
-      const { data: user, error: userError } = await supabase
+      const { data: user, error: userError } = await (supabase as any)
         .from('user_account')
         .select('*')
         .eq('id', id)
@@ -199,7 +199,7 @@ export const useUserWithRoles = (
       if (userError) throw userError;
 
       // Fetch user's role bindings
-      const { data: roleBindings, error: rolesError } = await supabase
+      const { data: roleBindings, error: rolesError } = await (supabase as any)
         .from('principal_role_binding')
         .select(`
           role:role_id(id, name, scope_type)
@@ -210,7 +210,7 @@ export const useUserWithRoles = (
       if (rolesError) throw rolesError;
 
       // Fetch user's groups
-      const { data: groupMemberships, error: groupsError } = await supabase
+      const { data: groupMemberships, error: groupsError } = await (supabase as any)
         .from('group_member')
         .select(`
           group:group_id(id, name)
@@ -243,7 +243,7 @@ export const useUserByEmail = (
     queryFn: async () => {
       if (!email) throw new Error('Email is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('user_account')
         .select(select)
         .eq('email', email)
@@ -300,7 +300,7 @@ export const useCreateUser = (
 
   return useMutation({
     mutationFn: async (input: UserAccountInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('user_account')
         .insert(input)
         .select()
@@ -332,7 +332,7 @@ export const useUpdateUser = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UserAccountUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('user_account')
         .update(data)
         .eq('id', id)
@@ -366,7 +366,7 @@ export const useUpdateUserStatus = (
 
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: UserStatus }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('user_account')
         .update({ status })
         .eq('id', id)
@@ -401,7 +401,7 @@ export const useUpdateUserPreferences = (
   return useMutation({
     mutationFn: async ({ id, preferences }: { id: string; preferences: Record<string, unknown> }) => {
       // Merge with existing preferences
-      const { data: existing, error: fetchError } = await supabase
+      const { data: existing, error: fetchError } = await (supabase as any)
         .from('user_account')
         .select('preferences')
         .eq('id', id)
@@ -414,7 +414,7 @@ export const useUpdateUserPreferences = (
         ...preferences,
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('user_account')
         .update({ preferences: mergedPreferences })
         .eq('id', id)
@@ -447,7 +447,7 @@ export const useDeleteUser = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_account')
         .delete()
         .eq('id', id);
