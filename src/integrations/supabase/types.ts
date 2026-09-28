@@ -7244,6 +7244,146 @@ export type Database = {
           },
         ]
       }
+      task: {
+        Row: {
+          actual_hours: number | null
+          assignee_id: string | null
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          estimated_hours: number | null
+          external_reference: string | null
+          id: string
+          labels: string[]
+          parent_task_id: string | null
+          priority: string
+          project_id: string
+          reporter_id: string | null
+          sprint_id: string | null
+          status: string
+          task_type: string
+          tenant_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          actual_hours?: number | null
+          assignee_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          estimated_hours?: number | null
+          external_reference?: string | null
+          id?: string
+          labels?: string[]
+          parent_task_id?: string | null
+          priority?: string
+          project_id: string
+          reporter_id?: string | null
+          sprint_id?: string | null
+          status?: string
+          task_type?: string
+          tenant_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          actual_hours?: number | null
+          assignee_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          estimated_hours?: number | null
+          external_reference?: string | null
+          id?: string
+          labels?: string[]
+          parent_task_id?: string | null
+          priority?: string
+          project_id?: string
+          reporter_id?: string | null
+          sprint_id?: string | null
+          status?: string
+          task_type?: string
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_parent_task_id_fkey"
+            columns: ["parent_task_id"]
+            isOneToOne: false
+            referencedRelation: "task"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenant"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_dependency: {
+        Row: {
+          created_at: string
+          dependency_type: string
+          depends_on_task_id: string
+          id: string
+          task_id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          dependency_type?: string
+          depends_on_task_id: string
+          id?: string
+          task_id: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          dependency_type?: string
+          depends_on_task_id?: string
+          id?: string
+          task_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_dependency_depends_on_task_id_fkey"
+            columns: ["depends_on_task_id"]
+            isOneToOne: false
+            referencedRelation: "task"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_dependency_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "task"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_dependency_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenant"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       template_instance: {
         Row: {
           catalog_item_id: string
