@@ -173,7 +173,7 @@ export const useFeatureFlags = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: featureFlagKeys.list({ pagination, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('feature_flag')
         .select('*', { count: 'exact' });
 
@@ -212,7 +212,7 @@ export const useFeatureFlag = (flagId: string, options: { enabled?: boolean } = 
   return useQuery({
     queryKey: featureFlagKeys.detail(flagId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('feature_flag')
         .select('*')
         .eq('id', flagId)
@@ -232,7 +232,7 @@ export const useFeatureFlagByKey = (key: string, options: { enabled?: boolean } 
   return useQuery({
     queryKey: featureFlagQueryKeys.byKey(key),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('feature_flag')
         .select('*')
         .eq('key', key)
@@ -252,7 +252,7 @@ export const useActiveFeatureFlags = () => {
   return useQuery({
     queryKey: featureFlagQueryKeys.active(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('feature_flag')
         .select('*')
         .eq('status', 'active')
@@ -272,7 +272,7 @@ export const useFeatureFlagsByStatus = (status: FeatureFlagStatus) => {
   return useQuery({
     queryKey: featureFlagQueryKeys.byStatus(status),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('feature_flag')
         .select('*')
         .eq('status', status)
@@ -291,7 +291,7 @@ export const useFeatureFlagsByTag = (tag: string) => {
   return useQuery({
     queryKey: featureFlagQueryKeys.byTag(tag),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('feature_flag')
         .select('*')
         .contains('tags', [tag])
@@ -312,7 +312,7 @@ export const useEvaluateFlags = (context: EvaluationContext) => {
     queryKey: featureFlagQueryKeys.evaluation(context),
     queryFn: async () => {
       // Fetch all active flags
-      const { data: flags, error } = await supabase
+      const { data: flags, error } = await (supabase as any)
         .from('feature_flag')
         .select('*')
         .eq('status', 'active');
@@ -340,7 +340,7 @@ export const useFlagEnabled = (key: string, context: EvaluationContext = {}) => 
   return useQuery({
     queryKey: [...featureFlagQueryKeys.byKey(key), 'enabled', context] as const,
     queryFn: async () => {
-      const { data: flag, error } = await supabase
+      const { data: flag, error } = await (supabase as any)
         .from('feature_flag')
         .select('*')
         .eq('key', key)
@@ -374,7 +374,7 @@ export const useCreateFeatureFlag = (
 
   return useMutation({
     mutationFn: async (flag: FeatureFlagInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('feature_flag')
         .insert(flag)
         .select()
@@ -403,7 +403,7 @@ export const useUpdateFeatureFlag = (
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: FeatureFlagUpdate }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('feature_flag')
         .update(updates)
         .eq('id', id)
@@ -436,7 +436,7 @@ export const useToggleFeatureFlag = (
   return useMutation({
     mutationFn: async (flagId: string) => {
       // First get current state
-      const { data: current, error: fetchError } = await supabase
+      const { data: current, error: fetchError } = await (supabase as any)
         .from('feature_flag')
         .select('enabled')
         .eq('id', flagId)
@@ -445,7 +445,7 @@ export const useToggleFeatureFlag = (
       if (fetchError) throw fetchError;
 
       // Toggle
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('feature_flag')
         .update({ enabled: !current.enabled })
         .eq('id', flagId)
@@ -476,7 +476,7 @@ export const useDeleteFeatureFlag = (
 
   return useMutation({
     mutationFn: async (flagId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('feature_flag')
         .delete()
         .eq('id', flagId);
@@ -502,7 +502,7 @@ export const useArchiveFeatureFlag = (
 
   return useMutation({
     mutationFn: async (flagId: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('feature_flag')
         .update({ status: 'archived', enabled: false })
         .eq('id', flagId)
@@ -531,7 +531,7 @@ export const useUpdateFlagRules = (
 
   return useMutation({
     mutationFn: async ({ flagId, rules }: { flagId: string; rules: FeatureFlagRule[] }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('feature_flag')
         .update({ rules })
         .eq('id', flagId)
@@ -561,7 +561,7 @@ export const useUpdateFlagTargeting = (
 
   return useMutation({
     mutationFn: async ({ flagId, targeting }: { flagId: string; targeting: FeatureFlagTargeting }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('feature_flag')
         .update({ targeting })
         .eq('id', flagId)
