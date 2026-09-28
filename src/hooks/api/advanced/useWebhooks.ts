@@ -202,8 +202,8 @@ export const useWebhooks = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: webhookKeys.list({ pagination, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
-        .from('webhook')
+      let query = (supabase as any)
+        .from('webhook_config')
         .select('*', { count: 'exact' });
 
       // Apply filters
@@ -241,8 +241,8 @@ export const useWebhook = (webhookId: string, options: { enabled?: boolean } = {
   return useQuery({
     queryKey: webhookKeys.detail(webhookId),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('webhook')
+      const { data, error } = await (supabase as any)
+        .from('webhook_config')
         .select('*')
         .eq('id', webhookId)
         .single();
@@ -261,8 +261,8 @@ export const useWebhooksByProject = (projectId: string) => {
   return useQuery({
     queryKey: webhookQueryKeys.byProject(projectId),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('webhook')
+      const { data, error } = await (supabase as any)
+        .from('webhook_config')
         .select('*')
         .eq('project_id', projectId)
         .order('name', { ascending: true });
@@ -281,8 +281,8 @@ export const useActiveWebhooks = () => {
   return useQuery({
     queryKey: webhookQueryKeys.active(),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('webhook')
+      const { data, error } = await (supabase as any)
+        .from('webhook_config')
         .select('*')
         .eq('status', 'active')
         .order('name', { ascending: true });
@@ -300,8 +300,8 @@ export const useWebhooksByEvent = (event: WebhookEventType) => {
   return useQuery({
     queryKey: webhookQueryKeys.byEvent(event),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('webhook')
+      const { data, error } = await (supabase as any)
+        .from('webhook_config')
         .select('*')
         .contains('events', [event])
         .eq('status', 'active')
@@ -328,7 +328,7 @@ export const useWebhookDeliveries = (webhookId: string, pagination?: PaginationP
   return useQuery({
     queryKey: deliveryQueryKeys.byWebhook(webhookId),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('webhook_delivery')
         .select('*', { count: 'exact' })
         .eq('webhook_id', webhookId)
@@ -354,7 +354,7 @@ export const useInfiniteWebhookDeliveries = (
   return useInfiniteQuery({
     queryKey: [...deliveryQueryKeys.byWebhook(webhookId), 'infinite'] as const,
     queryFn: async ({ pageParam = 0 }) => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('webhook_delivery')
         .select('*', { count: 'exact' })
         .eq('webhook_id', webhookId)
@@ -380,7 +380,7 @@ export const useWebhookDelivery = (deliveryId: string, options: { enabled?: bool
   return useQuery({
     queryKey: webhookDeliveryKeys.detail(deliveryId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('webhook_delivery')
         .select('*')
         .eq('id', deliveryId)
@@ -404,7 +404,7 @@ export const useFailedDeliveries = (pagination?: PaginationParams) => {
   return useQuery({
     queryKey: deliveryQueryKeys.failed(),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('webhook_delivery')
         .select('*, webhook(id, name, url)', { count: 'exact' })
         .eq('status', 'failed')
@@ -424,7 +424,7 @@ export const useRecentDeliveries = (webhookId: string, limit: number = 10) => {
   return useQuery({
     queryKey: deliveryQueryKeys.recent(webhookId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('webhook_delivery')
         .select('*')
         .eq('webhook_id', webhookId)
@@ -452,8 +452,8 @@ export const useCreateWebhook = (
 
   return useMutation({
     mutationFn: async (webhook: WebhookInsert) => {
-      const { data, error } = await supabase
-        .from('webhook')
+      const { data, error } = await (supabase as any)
+        .from('webhook_config')
         .insert(webhook)
         .select()
         .single();
@@ -483,8 +483,8 @@ export const useUpdateWebhook = (
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: WebhookUpdate }) => {
-      const { data, error } = await supabase
-        .from('webhook')
+      const { data, error } = await (supabase as any)
+        .from('webhook_config')
         .update(updates)
         .eq('id', id)
         .select()
@@ -513,8 +513,8 @@ export const useDeleteWebhook = (
 
   return useMutation({
     mutationFn: async (webhookId: string) => {
-      const { error } = await supabase
-        .from('webhook')
+      const { error } = await (supabase as any)
+        .from('webhook_config')
         .delete()
         .eq('id', webhookId);
 
@@ -540,8 +540,8 @@ export const useToggleWebhookStatus = (
   return useMutation({
     mutationFn: async (webhookId: string) => {
       // Get current status
-      const { data: current, error: fetchError } = await supabase
-        .from('webhook')
+      const { data: current, error: fetchError } = await (supabase as any)
+        .from('webhook_config')
         .select('status')
         .eq('id', webhookId)
         .single();
@@ -550,8 +550,8 @@ export const useToggleWebhookStatus = (
 
       const newStatus: WebhookStatus = current.status === 'active' ? 'paused' : 'active';
 
-      const { data, error } = await supabase
-        .from('webhook')
+      const { data, error } = await (supabase as any)
+        .from('webhook_config')
         .update({ status: newStatus })
         .eq('id', webhookId)
         .select()
@@ -579,8 +579,8 @@ export const useTestWebhook = (
   return useMutation({
     mutationFn: async (webhookId: string) => {
       // Get webhook details
-      const { data: webhook, error: fetchError } = await supabase
-        .from('webhook')
+      const { data: webhook, error: fetchError } = await (supabase as any)
+        .from('webhook_config')
         .select('*')
         .eq('id', webhookId)
         .single();
@@ -642,7 +642,7 @@ export const useRetryDelivery = (
 
   return useMutation({
     mutationFn: async (deliveryId: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('webhook_delivery')
         .update({
           status: 'pending',
@@ -682,8 +682,8 @@ export const useRegenerateWebhookSecret = (
         .map(b => b.toString(16).padStart(2, '0'))
         .join('');
 
-      const { data, error } = await supabase
-        .from('webhook')
+      const { data, error } = await (supabase as any)
+        .from('webhook_config')
         .update({ secret: newSecret })
         .eq('id', webhookId)
         .select()
