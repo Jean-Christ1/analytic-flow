@@ -254,7 +254,7 @@ export const useArgoCdInstances = (options: ListQueryOptions = {}) => {
       const { data, error, count } = await (supabase as any)
         .from('argocd_instance')
         .select('*', { count: 'exact' })
-        .order(sort.column, { ascending: sort.ascending ?? true })
+        .order((Array.isArray(sort) ? sort[0] : sort).column, { ascending: (Array.isArray(sort) ? sort[0] : sort).ascending ?? true })
         .range(offset, offset + pageSize - 1);
 
       if (error) throw error;
