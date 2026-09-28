@@ -283,14 +283,14 @@ class AuthService {
 
   private async fetchUserProfile(user: User): Promise<AuthUser> {
     // Try to fetch profile from database
-    const { data: profile } = await supabase
+    const { data: profile } = await (supabase as any)
       .from('profiles')
       .select('*')
       .eq('user_id', user.id)
       .single();
 
     // Try to fetch user role
-    const { data: roleData } = await supabase
+    const { data: roleData } = await (supabase as any)
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
@@ -311,7 +311,7 @@ class AuthService {
     userId: string,
     data: { fullName: string; email: string; tenantId?: string }
   ): Promise<void> {
-    await supabase.from('profiles').insert({
+    await (supabase as any).from('profiles').insert({
       user_id: userId,
       full_name: data.fullName,
       // tenant_id is set via trigger or default

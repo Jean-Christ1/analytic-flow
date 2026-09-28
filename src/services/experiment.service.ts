@@ -43,7 +43,7 @@ class ExperimentService {
    * Create a new experiment
    */
   async createExperiment(data: ExperimentInsert): Promise<Experiment> {
-    const { data: result, error } = await supabase
+    const { data: result, error } = await (supabase as any)
       .from('experiment')
       .insert({
         tenant_id: data.tenant_id,
@@ -68,7 +68,7 @@ class ExperimentService {
    * Get experiment summary with statistics
    */
   async getExperimentSummary(experimentId: string): Promise<ExperimentSummary | null> {
-    const { data: experiment, error: expError } = await supabase
+    const { data: experiment, error: expError } = await (supabase as any)
       .from('experiment')
       .select('id, name')
       .eq('id', experimentId)
@@ -77,7 +77,7 @@ class ExperimentService {
     if (expError || !experiment) return null;
 
     // Get run statistics
-    const { data: runs, error: runsError } = await supabase
+    const { data: runs, error: runsError } = await (supabase as any)
       .from('run')
       .select('id, status, started_at, metrics_summary')
       .eq('experiment_id', experimentId)
@@ -159,7 +159,7 @@ class ExperimentService {
     options: ExperimentCloneOptions
   ): Promise<Experiment> {
     // Fetch source experiment
-    const { data: source, error: sourceError } = await supabase
+    const { data: source, error: sourceError } = await (supabase as any)
       .from('experiment')
       .select('*')
       .eq('id', sourceId)
@@ -170,7 +170,7 @@ class ExperimentService {
     }
 
     // Create new experiment
-    const { data: newExperiment, error: createError } = await supabase
+    const { data: newExperiment, error: createError } = await (supabase as any)
       .from('experiment')
       .insert({
         tenant_id: source.tenant_id,
@@ -197,7 +197,7 @@ class ExperimentService {
    * Archive an experiment
    */
   async archiveExperiment(experimentId: string): Promise<void> {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('experiment')
       .update({
         tags: supabase.sql`array_append(tags, 'archived')`,
@@ -217,7 +217,7 @@ class ExperimentService {
     experimentId: string,
     metricKey: string
   ): Promise<{ runId: string; runName: string; timestamp: string; value: number }[]> {
-    const { data: runs, error: runsError } = await supabase
+    const { data: runs, error: runsError } = await (supabase as any)
       .from('run')
       .select('id, started_at')
       .eq('experiment_id', experimentId)
@@ -227,7 +227,7 @@ class ExperimentService {
 
     const runIds = runs.map((r) => r.id);
 
-    const { data: metrics, error: metricsError } = await supabase
+    const { data: metrics, error: metricsError } = await (supabase as any)
       .from('run_metric')
       .select('run_id, value, logged_at')
       .in('run_id', runIds)
@@ -262,7 +262,7 @@ class ExperimentService {
    * Get experiment tags
    */
   async getExperimentTags(projectId: string): Promise<string[]> {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('experiment')
       .select('tags')
       .eq('project_id', projectId);
@@ -289,7 +289,7 @@ class ExperimentService {
     removeTags: string[]
   ): Promise<void> {
     for (const id of experimentIds) {
-      const { data: current } = await supabase
+      const { data: current } = await (supabase as any)
         .from('experiment')
         .select('tags')
         .eq('id', id)
@@ -307,7 +307,7 @@ class ExperimentService {
         }
       }
 
-      await supabase.from('experiment').update({ tags }).eq('id', id);
+      await (supabase as any).from('experiment').update({ tags }).eq('id', id);
     }
   }
 }

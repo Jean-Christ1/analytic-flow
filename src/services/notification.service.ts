@@ -156,7 +156,7 @@ class NotificationService {
   ): Promise<Notification[]> {
     if (!this.userId) throw new Error('Not initialized');
 
-    let query = supabase
+    let query = (supabase as any)
       .from('notification')
       .select('*')
       .eq('user_id', this.userId)
@@ -199,7 +199,7 @@ class NotificationService {
   async getUnreadCount(): Promise<number> {
     if (!this.userId) throw new Error('Not initialized');
 
-    const { count, error } = await supabase
+    const { count, error } = await (supabase as any)
       .from('notification')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', this.userId)
@@ -219,7 +219,7 @@ class NotificationService {
   async getStats(): Promise<NotificationStats> {
     if (!this.userId) throw new Error('Not initialized');
 
-    const { data: notifications } = await supabase
+    const { data: notifications } = await (supabase as any)
       .from('notification')
       .select('type, priority, read')
       .eq('user_id', this.userId);
@@ -249,7 +249,7 @@ class NotificationService {
    * Mark notification as read
    */
   async markAsRead(notificationId: string): Promise<void> {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('notification')
       .update({ read: true, read_at: new Date().toISOString() })
       .eq('id', notificationId);
@@ -266,7 +266,7 @@ class NotificationService {
   async markAllAsRead(): Promise<void> {
     if (!this.userId) throw new Error('Not initialized');
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('notification')
       .update({ read: true, read_at: new Date().toISOString() })
       .eq('user_id', this.userId)
@@ -282,7 +282,7 @@ class NotificationService {
    * Delete a notification
    */
   async deleteNotification(notificationId: string): Promise<void> {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('notification')
       .delete()
       .eq('id', notificationId);
@@ -302,7 +302,7 @@ class NotificationService {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysOld);
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('notification')
       .delete()
       .eq('user_id', this.userId)
@@ -331,7 +331,7 @@ class NotificationService {
     link?: string;
     metadata?: Record<string, unknown>;
   }): Promise<Notification> {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('notification')
       .insert({
         user_id: notification.userId,
@@ -373,7 +373,7 @@ class NotificationService {
     }
   ): Promise<number> {
     // Get all users in tenant
-    const { data: profiles } = await supabase
+    const { data: profiles } = await (supabase as any)
       .from('profiles')
       .select('user_id')
       .eq('tenant_id', tenantId);
@@ -392,7 +392,7 @@ class NotificationService {
       read: false,
     }));
 
-    const { error } = await supabase.from('notification').insert(notifications);
+    const { error } = await (supabase as any).from('notification').insert(notifications);
 
     if (error) {
       console.error('Failed to broadcast notification:', error);
@@ -408,7 +408,7 @@ class NotificationService {
   async getPreferences(): Promise<NotificationPreferences | null> {
     if (!this.userId) throw new Error('Not initialized');
 
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from('notification_preferences')
       .select('*')
       .eq('user_id', this.userId)
@@ -433,7 +433,7 @@ class NotificationService {
   ): Promise<void> {
     if (!this.userId) throw new Error('Not initialized');
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('notification_preferences')
       .upsert({
         user_id: this.userId,
@@ -477,7 +477,7 @@ class NotificationService {
   async getAlertRules(): Promise<AlertRule[]> {
     if (!this.userId) throw new Error('Not initialized');
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('alert_rule')
       .select('*')
       .eq('user_id', this.userId)
@@ -497,13 +497,13 @@ class NotificationService {
   async createAlertRule(rule: Omit<AlertRule, 'id' | 'lastTriggeredAt'>): Promise<AlertRule> {
     if (!this.userId) throw new Error('Not initialized');
 
-    const { data: profile } = await supabase
+    const { data: profile } = await (supabase as any)
       .from('profiles')
       .select('tenant_id')
       .eq('user_id', this.userId)
       .single();
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('alert_rule')
       .insert({
         user_id: this.userId,
@@ -533,7 +533,7 @@ class NotificationService {
     ruleId: string,
     updates: Partial<Omit<AlertRule, 'id' | 'lastTriggeredAt'>>
   ): Promise<void> {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('alert_rule')
       .update({
         name: updates.name,
@@ -556,7 +556,7 @@ class NotificationService {
    * Delete alert rule
    */
   async deleteAlertRule(ruleId: string): Promise<void> {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('alert_rule')
       .delete()
       .eq('id', ruleId);

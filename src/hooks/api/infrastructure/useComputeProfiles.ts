@@ -146,7 +146,7 @@ export const useComputeProfiles = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: computeProfileKeys.list({ pagination, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('compute_profile')
         .select(select, { count: 'exact' });
 
@@ -185,7 +185,7 @@ export const useComputeProfile = (profileId: string, options: { enabled?: boolea
   return useQuery({
     queryKey: computeProfileKeys.detail(profileId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .select('*')
         .eq('id', profileId)
@@ -205,7 +205,7 @@ export const useComputeProfileByName = (name: string, options: { enabled?: boole
   return useQuery({
     queryKey: [...computeProfileKeys.all, 'name', name] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .select('*')
         .eq('name', name)
@@ -225,7 +225,7 @@ export const useGpuProfiles = () => {
   return useQuery({
     queryKey: computeProfileQueryKeys.withGpu(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .select('*')
         .gt('gpu_count', 0)
@@ -245,7 +245,7 @@ export const useCpuOnlyProfiles = () => {
   return useQuery({
     queryKey: computeProfileQueryKeys.cpuOnly(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .select('*')
         .eq('gpu_count', 0)
@@ -265,7 +265,7 @@ export const useProfilesByGpuType = (gpuType: string) => {
   return useQuery({
     queryKey: computeProfileQueryKeys.byGpuType(gpuType),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .select('*')
         .eq('gpu_type', gpuType)
@@ -285,7 +285,7 @@ export const useProfilesByPriorityClass = (priorityClass: string) => {
   return useQuery({
     queryKey: computeProfileQueryKeys.byPriorityClass(priorityClass),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .select('*')
         .eq('priority_class', priorityClass)
@@ -305,7 +305,7 @@ export const useSearchComputeProfiles = (searchTerm: string) => {
   return useQuery({
     queryKey: [...computeProfileKeys.all, 'search', searchTerm] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .select('*')
         .ilike('name', `%${searchTerm}%`)
@@ -332,7 +332,7 @@ export const useSuitableProfiles = (requirements: {
   return useQuery({
     queryKey: [...computeProfileKeys.all, 'suitable', requirements] as const,
     queryFn: async () => {
-      let query = supabase.from('compute_profile').select('*');
+      let query = (supabase as any).from('compute_profile').select('*');
 
       if (minCpu) {
         query = query.gte('cpu_limit', minCpu);
@@ -374,7 +374,7 @@ export const useCreateComputeProfile = (
 
   return useMutation({
     mutationFn: async (profile: ComputeProfileInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .insert(profile)
         .select()
@@ -407,7 +407,7 @@ export const useUpdateComputeProfile = (
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: ComputeProfileUpdate }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .update(updates)
         .eq('id', id)
@@ -439,7 +439,7 @@ export const useDeleteComputeProfile = (
 
   return useMutation({
     mutationFn: async (profileId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('compute_profile')
         .delete()
         .eq('id', profileId);
@@ -469,7 +469,7 @@ export const useUpdateCpuResources = (
 
   return useMutation({
     mutationFn: async ({ id, cpuRequest, cpuLimit }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .update({
           cpu_request: cpuRequest,
@@ -505,7 +505,7 @@ export const useUpdateMemoryResources = (
 
   return useMutation({
     mutationFn: async ({ id, memRequestMb, memLimitMb }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .update({
           mem_request_mb: memRequestMb,
@@ -541,7 +541,7 @@ export const useUpdateGpuConfig = (
 
   return useMutation({
     mutationFn: async ({ id, gpuCount, gpuType }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .update({
           gpu_count: gpuCount,
@@ -578,7 +578,7 @@ export const useUpdateNodeSelector = (
 
   return useMutation({
     mutationFn: async ({ id, nodeSelector }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .update({ node_selector: nodeSelector })
         .eq('id', id)
@@ -607,7 +607,7 @@ export const useUpdateTolerations = (
 
   return useMutation({
     mutationFn: async ({ id, tolerations }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .update({ tolerations })
         .eq('id', id)
@@ -636,7 +636,7 @@ export const useUpdateAffinity = (
 
   return useMutation({
     mutationFn: async ({ id, affinity }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .update({ affinity })
         .eq('id', id)
@@ -666,7 +666,7 @@ export const useCloneComputeProfile = (
   return useMutation({
     mutationFn: async ({ sourceId, newName }) => {
       // First, fetch the source profile
-      const { data: source, error: fetchError } = await supabase
+      const { data: source, error: fetchError } = await (supabase as any)
         .from('compute_profile')
         .select('*')
         .eq('id', sourceId)
@@ -691,7 +691,7 @@ export const useCloneComputeProfile = (
         priority_class: source.priority_class,
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compute_profile')
         .insert(newProfile)
         .select()

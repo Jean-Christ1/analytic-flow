@@ -502,7 +502,7 @@ export const useArtifactDownloadUrl = (
       // Placeholder implementation for Supabase storage
       if (artifact.storage_type === 'supabase') {
         const { data } = await supabase.storage
-          .from('artifacts')
+          .from('artifact')
           .createSignedUrl(artifact.storage_uri, expiresIn);
 
         if (data) {
