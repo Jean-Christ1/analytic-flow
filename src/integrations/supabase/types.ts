@@ -6246,6 +6246,74 @@ export type Database = {
           },
         ]
       }
+      quota: {
+        Row: {
+          alert_sent: boolean
+          alert_threshold: number
+          created_at: string
+          current_usage: number
+          hard_limit: number
+          id: string
+          limit_value: number
+          metadata: Json
+          period: string
+          period_end: string | null
+          period_start: string | null
+          resource_type: string
+          scope: string
+          scope_id: string | null
+          soft_limit: number | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          alert_sent?: boolean
+          alert_threshold?: number
+          created_at?: string
+          current_usage?: number
+          hard_limit?: number
+          id?: string
+          limit_value?: number
+          metadata?: Json
+          period?: string
+          period_end?: string | null
+          period_start?: string | null
+          resource_type: string
+          scope?: string
+          scope_id?: string | null
+          soft_limit?: number | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          alert_sent?: boolean
+          alert_threshold?: number
+          created_at?: string
+          current_usage?: number
+          hard_limit?: number
+          id?: string
+          limit_value?: number
+          metadata?: Json
+          period?: string
+          period_end?: string | null
+          period_start?: string | null
+          resource_type?: string
+          scope?: string
+          scope_id?: string | null
+          soft_limit?: number | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quota_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenant"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quota_policy: {
         Row: {
           created_at: string
