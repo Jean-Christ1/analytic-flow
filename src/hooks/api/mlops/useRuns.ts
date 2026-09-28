@@ -168,7 +168,7 @@ export const useRuns = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: runKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('ml_run')
         .select(select, { count: 'exact' });
 
@@ -225,7 +225,7 @@ export const useInfiniteRuns = (
   return useInfiniteQuery({
     queryKey: runKeys.infinite({ sort, filters, search }),
     queryFn: async ({ pageParam = 0 }) => {
-      let query = supabase
+      let query = (supabase as any)
         .from('ml_run')
         .select(select, { count: 'exact' });
 
@@ -293,7 +293,7 @@ export const useRun = (
     queryFn: async () => {
       if (!id) throw new Error('Run ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run')
         .select(select)
         .eq('id', id)
@@ -421,7 +421,7 @@ export const useRunMetrics = (
     queryFn: async () => {
       if (!runId) throw new Error('Run ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run_metric')
         .select('*')
         .eq('run_id', runId)
@@ -449,7 +449,7 @@ export const useRunParams = (
     queryFn: async () => {
       if (!runId) throw new Error('Run ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run_param')
         .select('*')
         .eq('run_id', runId);
@@ -478,7 +478,7 @@ export const useCompareRuns = (
       if (runIds.length === 0) throw new Error('At least one run ID is required');
 
       // Fetch all runs
-      const { data: runs, error: runsError } = await supabase
+      const { data: runs, error: runsError } = await (supabase as any)
         .from('ml_run')
         .select('*')
         .in('id', runIds);
@@ -486,7 +486,7 @@ export const useCompareRuns = (
       if (runsError) throw runsError;
 
       // Fetch all metrics for these runs
-      const { data: metrics, error: metricsError } = await supabase
+      const { data: metrics, error: metricsError } = await (supabase as any)
         .from('ml_run_metric')
         .select('*')
         .in('run_id', runIds);
@@ -542,7 +542,7 @@ export const useBestRun = (
 
       // TODO: This should be a server-side function for performance
       // Get all completed runs for this experiment
-      const { data: runs, error: runsError } = await supabase
+      const { data: runs, error: runsError } = await (supabase as any)
         .from('ml_run')
         .select('*')
         .eq('experiment_id', experimentId)
@@ -552,7 +552,7 @@ export const useBestRun = (
       if (!runs || runs.length === 0) return null;
 
       // Get metrics for these runs
-      const { data: metrics, error: metricsError } = await supabase
+      const { data: metrics, error: metricsError } = await (supabase as any)
         .from('ml_run_metric')
         .select('*')
         .in('run_id', runs.map((r) => r.id))
@@ -589,7 +589,7 @@ export const useCreateRun = (
 
   return useMutation({
     mutationFn: async (input: RunInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run')
         .insert({
           ...input,
@@ -628,7 +628,7 @@ export const useUpdateRun = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: RunUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('ml_run')
         .update(data)
         .eq('id', id)
@@ -662,7 +662,7 @@ export const useStartRun = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run')
         .update({
           status: 'running' as RunStatus,
@@ -700,7 +700,7 @@ export const useCompleteRun = (
   return useMutation({
     mutationFn: async (id: string) => {
       // First get the run to calculate duration
-      const { data: run, error: fetchError } = await supabase
+      const { data: run, error: fetchError } = await (supabase as any)
         .from('ml_run')
         .select('start_time')
         .eq('id', id)
@@ -712,7 +712,7 @@ export const useCompleteRun = (
       const startTime = run.start_time ? new Date(run.start_time) : endTime;
       const durationSeconds = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run')
         .update({
           status: 'completed' as RunStatus,
@@ -751,7 +751,7 @@ export const useFailRun = (
   return useMutation({
     mutationFn: async ({ id, error_message }: { id: string; error_message?: string }) => {
       // First get the run to calculate duration
-      const { data: run, error: fetchError } = await supabase
+      const { data: run, error: fetchError } = await (supabase as any)
         .from('ml_run')
         .select('start_time, metadata')
         .eq('id', id)
@@ -769,7 +769,7 @@ export const useFailRun = (
         failed_at: endTime.toISOString(),
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run')
         .update({
           status: 'failed' as RunStatus,
@@ -808,7 +808,7 @@ export const useCancelRun = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run')
         .update({
           status: 'cancelled' as RunStatus,
@@ -845,7 +845,7 @@ export const useDeleteRun = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('ml_run')
         .delete()
         .eq('id', id);
@@ -876,7 +876,7 @@ export const useLogRunMetric = (
 
   return useMutation({
     mutationFn: async (input: { run_id: string; key: string; value: number; step?: number }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run_metric')
         .insert({
           run_id: input.run_id,
@@ -925,7 +925,7 @@ export const useBatchLogRunMetrics = (
         is_nan: Number.isNaN(m.value),
       }));
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run_metric')
         .insert(metricsToInsert)
         .select();
@@ -957,7 +957,7 @@ export const useSetRunParam = (
   return useMutation({
     mutationFn: async (input: { run_id: string; key: string; value: string }) => {
       // Upsert the parameter
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run_param')
         .upsert({
           run_id: input.run_id,
@@ -993,7 +993,7 @@ export const useUpdateRunTags = (
 
   return useMutation({
     mutationFn: async ({ id, tags }: { id: string; tags: string[] }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run')
         .update({ tags })
         .eq('id', id)

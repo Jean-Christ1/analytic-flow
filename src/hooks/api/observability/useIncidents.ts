@@ -166,7 +166,7 @@ export const useIncidents = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: incidentKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('incident')
         .select(select, { count: 'exact' });
 
@@ -233,7 +233,7 @@ export const useIncident = (
     queryFn: async () => {
       if (!id) throw new Error('Incident ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('incident')
         .select(select)
         .eq('id', id)
@@ -360,7 +360,7 @@ export const useIncidentTimeline = (
     queryFn: async () => {
       if (!incidentId) throw new Error('Incident ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('incident_update')
         .select('*, author:user_account(display_name, email)')
         .eq('incident_id', incidentId)
@@ -386,7 +386,7 @@ export const useIncidentMetrics = (
   return useQuery({
     queryKey: ['incidents', 'metrics', dateRange, projectId],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('incident')
         .select('severity, status, detected_at, declared_at, resolved_at, project_id');
 
@@ -467,7 +467,7 @@ export const useIncidentTrends = (
   return useQuery({
     queryKey: ['incidents', 'trends', dateRange, projectId],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('incident')
         .select('created_at, severity, status')
         .gte('created_at', dateRange.start)
@@ -524,7 +524,7 @@ export const useCreateIncident = (
         declared_at: input.declared_at ?? new Date().toISOString(),
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('incident')
         .insert(inputWithDefaults)
         .select()
@@ -557,7 +557,7 @@ export const useUpdateIncident = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: IncidentUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('incident')
         .update(data)
         .eq('id', id)
@@ -592,7 +592,7 @@ export const useDeleteIncident = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('incident')
         .delete()
         .eq('id', id);
@@ -624,7 +624,7 @@ export const useAcknowledgeIncident = (
 
   return useMutation({
     mutationFn: async ({ id, ownerId }: { id: string; ownerId: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('incident')
         .update({
           owner_user_id: ownerId,
@@ -661,7 +661,7 @@ export const useResolveIncident = (
 
   return useMutation({
     mutationFn: async ({ id, rootCause }: { id: string; rootCause?: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('incident')
         .update({
           status: 'resolved',
@@ -700,7 +700,7 @@ export const useCloseIncident = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('incident')
         .update({ status: 'closed' })
         .eq('id', id)
@@ -734,7 +734,7 @@ export const useAddIncidentUpdate = (
 
   return useMutation({
     mutationFn: async (input: IncidentTimelineEntryInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('incident_update')
         .insert(input)
         .select()
@@ -767,7 +767,7 @@ export const useEscalateIncident = (
 
   return useMutation({
     mutationFn: async ({ id, newSeverity }: { id: string; newSeverity: IncidentSeverity }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('incident')
         .update({ severity: newSeverity })
         .eq('id', id)

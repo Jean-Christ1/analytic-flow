@@ -137,7 +137,7 @@ export const useAISystems = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: aiSystemKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('ai_system')
         .select(select, { count: 'exact' });
 
@@ -204,7 +204,7 @@ export const useAISystem = (
     queryFn: async () => {
       if (!id) throw new Error('AI System ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ai_system')
         .select(select)
         .eq('id', id)
@@ -302,7 +302,7 @@ export const useAISystemComplianceSummary = (
   return useQuery({
     queryKey: ['aiSystems', 'complianceSummary', projectId],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('ai_system')
         .select('id, risk_class, status');
 
@@ -372,7 +372,7 @@ export const useCreateAISystem = (
 
   return useMutation({
     mutationFn: async (input: AISystemInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ai_system')
         .insert(input)
         .select()
@@ -404,7 +404,7 @@ export const useUpdateAISystem = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: AISystemUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('ai_system')
         .update(data)
         .eq('id', id)
@@ -438,7 +438,7 @@ export const useDeleteAISystem = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('ai_system')
         .delete()
         .eq('id', id);
@@ -469,7 +469,7 @@ export const useTransitionAISystemStatus = (
 
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: AISystemStatus }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ai_system')
         .update({ status })
         .eq('id', id)
@@ -505,7 +505,7 @@ export const useClassifyAISystemRisk = (
 
   return useMutation({
     mutationFn: async ({ id, riskClass }: { id: string; riskClass: AIRiskClass }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ai_system')
         .update({ risk_class: riskClass })
         .eq('id', id)

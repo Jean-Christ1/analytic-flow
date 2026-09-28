@@ -113,7 +113,7 @@ export const useContainerRegistries = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: containerRegistryKeys.list({ pagination, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('container_registry')
         .select(select, { count: 'exact' });
 
@@ -152,7 +152,7 @@ export const useContainerRegistry = (registryId: string, options: { enabled?: bo
   return useQuery({
     queryKey: containerRegistryKeys.detail(registryId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('container_registry')
         .select('*')
         .eq('id', registryId)
@@ -172,7 +172,7 @@ export const useContainerRegistryByName = (name: string, options: { enabled?: bo
   return useQuery({
     queryKey: [...containerRegistryKeys.all, 'name', name] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('container_registry')
         .select('*')
         .eq('name', name)
@@ -192,7 +192,7 @@ export const useDefaultContainerRegistry = () => {
   return useQuery({
     queryKey: containerRegistryQueryKeys.default(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('container_registry')
         .select('*')
         .eq('is_default', true)
@@ -211,7 +211,7 @@ export const useContainerRegistriesByType = (type: ContainerRegistryType) => {
   return useQuery({
     queryKey: containerRegistryQueryKeys.byType(type),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('container_registry')
         .select('*')
         .eq('type', type)
@@ -230,7 +230,7 @@ export const useSearchContainerRegistries = (searchTerm: string) => {
   return useQuery({
     queryKey: [...containerRegistryKeys.all, 'search', searchTerm] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('container_registry')
         .select('*')
         .ilike('name', `%${searchTerm}%`)
@@ -257,7 +257,7 @@ export const useCreateContainerRegistry = (
 
   return useMutation({
     mutationFn: async (registry: ContainerRegistryInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('container_registry')
         .insert(registry)
         .select()
@@ -288,7 +288,7 @@ export const useUpdateContainerRegistry = (
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: ContainerRegistryUpdate }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('container_registry')
         .update(updates)
         .eq('id', id)
@@ -319,7 +319,7 @@ export const useDeleteContainerRegistry = (
 
   return useMutation({
     mutationFn: async (registryId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('container_registry')
         .delete()
         .eq('id', registryId);
@@ -346,13 +346,13 @@ export const useSetDefaultContainerRegistry = (
   return useMutation({
     mutationFn: async (registryId: string) => {
       // First, unset any existing default
-      await supabase
+      await (supabase as any)
         .from('container_registry')
         .update({ is_default: false })
         .eq('is_default', true);
 
       // Then set the new default
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('container_registry')
         .update({ is_default: true })
         .eq('id', registryId)
@@ -381,7 +381,7 @@ export const useUpdateTrustPolicy = (
 
   return useMutation({
     mutationFn: async ({ id, trustPolicy }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('container_registry')
         .update({ trust_policy: trustPolicy })
         .eq('id', id)
@@ -410,7 +410,7 @@ export const useUpdateRegistryAuth = (
 
   return useMutation({
     mutationFn: async ({ id, authSecretRef }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('container_registry')
         .update({ auth_secret_ref: authSecretRef })
         .eq('id', id)

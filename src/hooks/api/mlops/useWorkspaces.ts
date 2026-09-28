@@ -255,7 +255,7 @@ export const useWorkspaces = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: workspaceKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('ml_workspace')
         .select(select, { count: 'exact' });
 
@@ -312,7 +312,7 @@ export const useInfiniteWorkspaces = (
   return useInfiniteQuery({
     queryKey: workspaceKeys.infinite({ sort, filters, search }),
     queryFn: async ({ pageParam = 0 }) => {
-      let query = supabase
+      let query = (supabase as any)
         .from('ml_workspace')
         .select(select, { count: 'exact' });
 
@@ -381,7 +381,7 @@ export const useWorkspace = (
     queryFn: async () => {
       if (!id) throw new Error('Workspace ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_workspace')
         .select(select)
         .eq('id', id)
@@ -493,7 +493,7 @@ export const useWorkspaceSessions = (
     queryFn: async () => {
       if (!workspaceId) throw new Error('Workspace ID is required');
 
-      let query = supabase
+      let query = (supabase as any)
         .from('ml_workspace_session')
         .select('*')
         .eq('workspace_id', workspaceId)
@@ -529,7 +529,7 @@ export const useWorkspaceUsage = (
 
       // TODO: This should be an RPC function for accurate calculations
       // Placeholder implementation
-      const { data: sessions, error } = await supabase
+      const { data: sessions, error } = await (supabase as any)
         .from('ml_workspace_session')
         .select('*')
         .eq('workspace_id', workspaceId);
@@ -582,7 +582,7 @@ export const useWorkspaceTemplates = (
     queryFn: async () => {
       if (!tenantId) throw new Error('Tenant ID is required');
 
-      let query = supabase
+      let query = (supabase as any)
         .from('ml_workspace_template')
         .select('*')
         .order('name', { ascending: true });
@@ -617,7 +617,7 @@ export const useWorkspaceTemplate = (
     queryFn: async () => {
       if (!id) throw new Error('Template ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_workspace_template')
         .select('*')
         .eq('id', id)
@@ -645,7 +645,7 @@ export const useDefaultTemplates = (
     queryFn: async () => {
       if (!tenantId) throw new Error('Tenant ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_workspace_template')
         .select('*')
         .or(`tenant_id.eq.${tenantId},is_public.eq.true`)
@@ -682,7 +682,7 @@ export const useCreateWorkspace = (
 
   return useMutation({
     mutationFn: async (input: WorkspaceInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_workspace')
         .insert({
           ...input,
@@ -723,7 +723,7 @@ export const useCreateWorkspaceFromTemplate = (
   return useMutation({
     mutationFn: async ({ templateId, overrides }: { templateId: string; overrides: Partial<WorkspaceInsert> }) => {
       // Fetch template
-      const { data: template, error: templateError } = await supabase
+      const { data: template, error: templateError } = await (supabase as any)
         .from('ml_workspace_template')
         .select('*')
         .eq('id', templateId)
@@ -758,7 +758,7 @@ export const useCreateWorkspaceFromTemplate = (
         },
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_workspace')
         .insert({
           ...workspaceData,
@@ -794,7 +794,7 @@ export const useUpdateWorkspace = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: WorkspaceUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('ml_workspace')
         .update(data)
         .eq('id', id)
@@ -829,7 +829,7 @@ export const useStartWorkspace = (
   return useMutation({
     mutationFn: async (id: string) => {
       // TODO: Call edge function to provision workspace in K8s
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_workspace')
         .update({
           status: 'provisioning' as WorkspaceStatus,
@@ -866,7 +866,7 @@ export const useStopWorkspace = (
   return useMutation({
     mutationFn: async (id: string) => {
       // TODO: Call edge function to stop workspace in K8s
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_workspace')
         .update({
           status: 'stopping' as WorkspaceStatus,
@@ -903,7 +903,7 @@ export const useRestartWorkspace = (
   return useMutation({
     mutationFn: async (id: string) => {
       // TODO: Call edge function to restart workspace in K8s
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_workspace')
         .update({
           status: 'provisioning' as WorkspaceStatus,
@@ -940,7 +940,7 @@ export const useTerminateWorkspace = (
   return useMutation({
     mutationFn: async (id: string) => {
       // TODO: Call edge function to delete workspace resources in K8s
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('ml_workspace')
         .update({
           status: 'terminated' as WorkspaceStatus,
@@ -974,7 +974,7 @@ export const useDeleteWorkspace = (
   return useMutation({
     mutationFn: async (id: string) => {
       // First terminate if running
-      const { data: workspace } = await supabase
+      const { data: workspace } = await (supabase as any)
         .from('ml_workspace')
         .select('status')
         .eq('id', id)
@@ -984,7 +984,7 @@ export const useDeleteWorkspace = (
         throw new Error('Cannot delete a running workspace. Stop it first.');
       }
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('ml_workspace')
         .delete()
         .eq('id', id);
@@ -1015,7 +1015,7 @@ export const useUpdateWorkspaceActivity = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('ml_workspace')
         .update({
           last_activity_at: new Date().toISOString(),
@@ -1052,7 +1052,7 @@ export const useCreateWorkspaceTemplate = (
 
   return useMutation({
     mutationFn: async (input: Omit<WorkspaceTemplate, 'id' | 'created_at' | 'updated_at'>) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_workspace_template')
         .insert(input)
         .select()
@@ -1084,7 +1084,7 @@ export const useDeleteWorkspaceTemplate = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('ml_workspace_template')
         .delete()
         .eq('id', id);

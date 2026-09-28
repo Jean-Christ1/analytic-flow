@@ -147,7 +147,7 @@ export const useRiskAssessments = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: riskAssessmentKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('risk_assessment')
         .select(select, { count: 'exact' });
 
@@ -209,7 +209,7 @@ export const useRiskAssessment = (
     queryFn: async () => {
       if (!id) throw new Error('Risk Assessment ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('risk_assessment')
         .select(select)
         .eq('id', id)
@@ -256,7 +256,7 @@ export const useLatestRiskAssessment = (
     queryFn: async () => {
       if (!aiSystemId) throw new Error('AI System ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('risk_assessment')
         .select(`
           *,
@@ -342,7 +342,7 @@ export const useRiskAssessmentStats = (
     queryKey: ['riskAssessments', 'stats', projectId],
     queryFn: async () => {
       // Build query based on project filter
-      let query = supabase
+      let query = (supabase as any)
         .from('risk_assessment')
         .select(`
           id,
@@ -425,7 +425,7 @@ export const useCreateRiskAssessment = (
 
   return useMutation({
     mutationFn: async (input: RiskAssessmentInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('risk_assessment')
         .insert(input)
         .select()
@@ -461,7 +461,7 @@ export const useUpdateRiskAssessment = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: RiskAssessmentUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('risk_assessment')
         .update(data)
         .eq('id', id)
@@ -496,7 +496,7 @@ export const useDeleteRiskAssessment = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('risk_assessment')
         .delete()
         .eq('id', id);
@@ -529,7 +529,7 @@ export const useAddHazard = (
   return useMutation({
     mutationFn: async ({ assessmentId, hazard }: { assessmentId: string; hazard: Hazard }) => {
       // Fetch current assessment
-      const { data: current, error: fetchError } = await supabase
+      const { data: current, error: fetchError } = await (supabase as any)
         .from('risk_assessment')
         .select('hazards')
         .eq('id', assessmentId)
@@ -540,7 +540,7 @@ export const useAddHazard = (
       const currentHazards = (current.hazards as Hazard[]) ?? [];
       const updatedHazards = [...currentHazards, hazard];
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('risk_assessment')
         .update({ hazards: updatedHazards })
         .eq('id', assessmentId)
@@ -574,7 +574,7 @@ export const useAddMitigation = (
   return useMutation({
     mutationFn: async ({ assessmentId, mitigation }: { assessmentId: string; mitigation: Mitigation }) => {
       // Fetch current assessment
-      const { data: current, error: fetchError } = await supabase
+      const { data: current, error: fetchError } = await (supabase as any)
         .from('risk_assessment')
         .select('mitigations')
         .eq('id', assessmentId)
@@ -585,7 +585,7 @@ export const useAddMitigation = (
       const currentMitigations = (current.mitigations as Mitigation[]) ?? [];
       const updatedMitigations = [...currentMitigations, mitigation];
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('risk_assessment')
         .update({ mitigations: updatedMitigations })
         .eq('id', assessmentId)
@@ -637,7 +637,7 @@ export const useFinalizeRiskAssessment = (
       const nextReviewAt = new Date();
       nextReviewAt.setDate(nextReviewAt.getDate() + reviewIntervals[residualRisk]);
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('risk_assessment')
         .update({
           decision,
@@ -677,7 +677,7 @@ export const useScheduleReview = (
 
   return useMutation({
     mutationFn: async ({ id, nextReviewAt }: { id: string; nextReviewAt: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('risk_assessment')
         .update({ next_review_at: nextReviewAt })
         .eq('id', id)

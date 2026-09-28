@@ -116,7 +116,7 @@ export const useClusters = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: clusterKeys.list({ pagination, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('k8s_cluster')
         .select(select, { count: 'exact' });
 
@@ -165,7 +165,7 @@ export const useInfiniteClusters = (options: Omit<ListQueryOptions, 'pagination'
   return useInfiniteQuery({
     queryKey: clusterKeys.infinite({ sort, filters, search }),
     queryFn: async ({ pageParam = 0 }) => {
-      let query = supabase
+      let query = (supabase as any)
         .from('k8s_cluster')
         .select(select, { count: 'exact' });
 
@@ -209,7 +209,7 @@ export const useCluster = (clusterId: string, options: { enabled?: boolean } = {
   return useQuery({
     queryKey: clusterKeys.detail(clusterId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_cluster')
         .select('*')
         .eq('id', clusterId)
@@ -229,7 +229,7 @@ export const useClusterByName = (name: string, options: { enabled?: boolean } = 
   return useQuery({
     queryKey: [...clusterKeys.all, 'name', name] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_cluster')
         .select('*')
         .eq('name', name)
@@ -256,7 +256,7 @@ export const useClustersByProvider = (
   return useQuery({
     queryKey: clusterQueryKeys.byProvider(provider),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('k8s_cluster')
         .select('*', { count: 'exact' })
         .eq('provider', provider)
@@ -283,7 +283,7 @@ export const useClustersByEnvironment = (
   return useQuery({
     queryKey: clusterQueryKeys.byEnvironment(environment),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('k8s_cluster')
         .select('*', { count: 'exact' })
         .eq('environment', environment)
@@ -310,7 +310,7 @@ export const useClustersByStatus = (
   return useQuery({
     queryKey: clusterQueryKeys.byStatus(status),
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('k8s_cluster')
         .select('*', { count: 'exact' })
         .eq('status', status)
@@ -330,7 +330,7 @@ export const useReadyClusters = () => {
   return useQuery({
     queryKey: clusterQueryKeys.ready(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_cluster')
         .select('*')
         .eq('status', 'ready')
@@ -349,7 +349,7 @@ export const useClustersByRegion = (region: string) => {
   return useQuery({
     queryKey: clusterQueryKeys.byRegion(region),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_cluster')
         .select('*')
         .eq('region', region)
@@ -373,7 +373,7 @@ export const useSearchClusters = (searchTerm: string, pagination?: PaginationPar
   return useQuery({
     queryKey: [...clusterKeys.all, 'search', searchTerm] as const,
     queryFn: async () => {
-      const { data, error, count } = await supabase
+      const { data, error, count } = await (supabase as any)
         .from('k8s_cluster')
         .select('*', { count: 'exact' })
         .ilike('name', `%${searchTerm}%`)
@@ -401,7 +401,7 @@ export const useCreateCluster = (
 
   return useMutation({
     mutationFn: async (cluster: K8sClusterInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_cluster')
         .insert(cluster)
         .select()
@@ -429,7 +429,7 @@ export const useUpdateCluster = (
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: K8sClusterUpdate }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_cluster')
         .update(updates)
         .eq('id', id)
@@ -459,7 +459,7 @@ export const useDeleteCluster = (
 
   return useMutation({
     mutationFn: async (clusterId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('k8s_cluster')
         .delete()
         .eq('id', clusterId);
@@ -485,7 +485,7 @@ export const useUpdateClusterStatus = (
 
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: K8sClusterStatus }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_cluster')
         .update({ status })
         .eq('id', id)
@@ -516,7 +516,7 @@ export const useUpdateClusterLabels = (
 
   return useMutation({
     mutationFn: async ({ id, labels }: { id: string; labels: Record<string, string> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_cluster')
         .update({ labels })
         .eq('id', id)
@@ -545,7 +545,7 @@ export const useUpdateClusterNetworkProfile = (
 
   return useMutation({
     mutationFn: async ({ id, networkProfile }: { id: string; networkProfile: Record<string, unknown> }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('k8s_cluster')
         .update({ network_profile: networkProfile })
         .eq('id', id)

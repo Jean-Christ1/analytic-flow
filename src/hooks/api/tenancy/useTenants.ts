@@ -99,7 +99,7 @@ export const useTenants = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: tenantKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('tenant')
         .select(select, { count: 'exact' });
 
@@ -161,7 +161,7 @@ export const useTenant = (
     queryFn: async () => {
       if (!id) throw new Error('Tenant ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('tenant')
         .select(select)
         .eq('id', id)
@@ -191,7 +191,7 @@ export const useTenantBySlug = (
     queryFn: async () => {
       if (!slug) throw new Error('Tenant slug is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('tenant')
         .select(select)
         .eq('slug', slug)
@@ -217,7 +217,7 @@ export const useCurrentTenant = (options: { select?: string; enabled?: boolean }
     queryFn: async () => {
       // TODO: Get tenant_id from JWT claims or session
       // For now, fetch the first tenant the user has access to
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('tenant')
         .select(select)
         .limit(1)
@@ -245,7 +245,7 @@ export const useCreateTenant = (
 
   return useMutation({
     mutationFn: async (input: TenantInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('tenant')
         .insert(input)
         .select()
@@ -278,7 +278,7 @@ export const useUpdateTenant = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: TenantUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('tenant')
         .update(data)
         .eq('id', id)
@@ -313,7 +313,7 @@ export const useDeleteTenant = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('tenant')
         .delete()
         .eq('id', id);
@@ -345,7 +345,7 @@ export const useUpdateTenantStatus = (
 
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: TenantStatus }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('tenant')
         .update({ status })
         .eq('id', id)
@@ -379,7 +379,7 @@ export const useUpdateTenantTier = (
 
   return useMutation({
     mutationFn: async ({ id, tier }: { id: string; tier: TenantTier }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('tenant')
         .update({ tier })
         .eq('id', id)

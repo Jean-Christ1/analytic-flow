@@ -88,7 +88,7 @@ export const useOrganizations = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: orgKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('org')
         .select(select, { count: 'exact' });
 
@@ -148,7 +148,7 @@ export const useOrganization = (
     queryFn: async () => {
       if (!id) throw new Error('Organization ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('org')
         .select(select)
         .eq('id', id)
@@ -176,7 +176,7 @@ export const useOrganizationTree = (
     queryFn: async () => {
       if (!tenantId) throw new Error('Tenant ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('org')
         .select('*')
         .eq('tenant_id', tenantId)
@@ -255,7 +255,7 @@ export const useCreateOrganization = (
 
   return useMutation({
     mutationFn: async (input: OrganizationInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('org')
         .insert(input)
         .select()
@@ -288,7 +288,7 @@ export const useUpdateOrganization = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: OrganizationUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('org')
         .update(data)
         .eq('id', id)
@@ -323,7 +323,7 @@ export const useDeleteOrganization = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('org')
         .delete()
         .eq('id', id);
@@ -355,7 +355,7 @@ export const useMoveOrganization = (
 
   return useMutation({
     mutationFn: async ({ id, newParentId }: { id: string; newParentId: string | null }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('org')
         .update({ parent_org_id: newParentId })
         .eq('id', id)

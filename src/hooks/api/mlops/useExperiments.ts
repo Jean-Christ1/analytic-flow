@@ -104,7 +104,7 @@ export const useExperiments = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: experimentKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('experiment')
         .select(select, { count: 'exact' });
 
@@ -161,7 +161,7 @@ export const useInfiniteExperiments = (
   return useInfiniteQuery({
     queryKey: experimentKeys.infinite({ sort, filters, search }),
     queryFn: async ({ pageParam = 0 }) => {
-      let query = supabase
+      let query = (supabase as any)
         .from('experiment')
         .select(select, { count: 'exact' });
 
@@ -227,7 +227,7 @@ export const useExperiment = (
     queryFn: async () => {
       if (!id) throw new Error('Experiment ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('experiment')
         .select(select)
         .eq('id', id)
@@ -300,7 +300,7 @@ export const useCreateExperiment = (
 
   return useMutation({
     mutationFn: async (input: ExperimentInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('experiment')
         .insert(input)
         .select()
@@ -332,7 +332,7 @@ export const useUpdateExperiment = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: ExperimentUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('experiment')
         .update(data)
         .eq('id', id)
@@ -366,7 +366,7 @@ export const useDeleteExperiment = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('experiment')
         .delete()
         .eq('id', id);
@@ -397,7 +397,7 @@ export const useArchiveExperiment = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('experiment')
         .update({ status: 'archived' as ExperimentStatus })
         .eq('id', id)
@@ -431,7 +431,7 @@ export const useCompleteExperiment = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('experiment')
         .update({ status: 'completed' as ExperimentStatus })
         .eq('id', id)
@@ -465,7 +465,7 @@ export const useUpdateExperimentTags = (
 
   return useMutation({
     mutationFn: async ({ id, tags }: { id: string; tags: string[] }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('experiment')
         .update({ tags })
         .eq('id', id)
@@ -508,7 +508,7 @@ export const useRestoreExperiment = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('experiment')
         .update({ status: 'active' as ExperimentStatus })
         .eq('id', id)
@@ -580,7 +580,7 @@ export const useExperimentStats = (
       if (!experimentId) throw new Error('Experiment ID is required');
 
       // Fetch all runs for this experiment
-      const { data: runs, error } = await supabase
+      const { data: runs, error } = await (supabase as any)
         .from('ml_run')
         .select('id, status, duration_seconds')
         .eq('experiment_id', experimentId);
@@ -610,7 +610,7 @@ export const useExperimentStats = (
 
       if (runsList.length > 0) {
         const runIds = runsList.map((r) => r.id);
-        const { data: metrics, error: metricsError } = await supabase
+        const { data: metrics, error: metricsError } = await (supabase as any)
           .from('run_metric')
           .select('key, value')
           .in('run_id', runIds)
@@ -667,7 +667,7 @@ export const useCompareExperiments = (
         return [];
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('experiment')
         .select(`
           *,

@@ -195,7 +195,7 @@ export const useSLAPolicies = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: slaPolicyKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('sla_policy')
         .select(select, { count: 'exact' });
 
@@ -255,7 +255,7 @@ export const useSLAPolicy = (
     queryFn: async () => {
       if (!id) throw new Error('SLA Policy ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('sla_policy')
         .select(select)
         .eq('id', id)
@@ -348,7 +348,7 @@ export const useSLACompliance = (
       if (!policyId) throw new Error('Policy ID is required');
 
       // Get the policy
-      const { data: policy, error: policyError } = await supabase
+      const { data: policy, error: policyError } = await (supabase as any)
         .from('sla_policy')
         .select('*')
         .eq('id', policyId)
@@ -429,7 +429,7 @@ export const useErrorBudgetStatus = (
       if (!policyId) throw new Error('Policy ID is required');
 
       // Get the policy
-      const { data: policy, error: policyError } = await supabase
+      const { data: policy, error: policyError } = await (supabase as any)
         .from('sla_policy')
         .select('*')
         .eq('id', policyId)
@@ -494,7 +494,7 @@ export const useSLAPoliciesWithCompliance = (options: { enabled?: boolean } = {}
   return useQuery({
     queryKey: ['slaPolicies', 'allWithCompliance'],
     queryFn: async () => {
-      const { data: policies, error } = await supabase
+      const { data: policies, error } = await (supabase as any)
         .from('sla_policy')
         .select('*');
 
@@ -547,7 +547,7 @@ export const useCreateSLAPolicy = (
 
   return useMutation({
     mutationFn: async (input: SLAPolicyInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('sla_policy')
         .insert(input)
         .select()
@@ -580,7 +580,7 @@ export const useUpdateSLAPolicy = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: SLAPolicyUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('sla_policy')
         .update(data)
         .eq('id', id)
@@ -616,7 +616,7 @@ export const useDeleteSLAPolicy = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('sla_policy')
         .delete()
         .eq('id', id);
@@ -659,7 +659,7 @@ export const useCreateSLAFromTemplate = (
         throw new Error(`Template ${templateId} not found`);
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('sla_policy')
         .insert({
           tenant_id: tenantId,
@@ -698,7 +698,7 @@ export const useAddSLATarget = (
   return useMutation({
     mutationFn: async ({ policyId, target }: { policyId: string; target: SLATarget }) => {
       // Get current policy
-      const { data: policy, error: fetchError } = await supabase
+      const { data: policy, error: fetchError } = await (supabase as any)
         .from('sla_policy')
         .select('targets')
         .eq('id', policyId)
@@ -712,7 +712,7 @@ export const useAddSLATarget = (
         targets: [...currentTargets, target],
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('sla_policy')
         .update({ targets: updatedTargets })
         .eq('id', policyId)

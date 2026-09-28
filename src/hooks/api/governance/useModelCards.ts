@@ -148,7 +148,7 @@ export const useModelCards = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: modelCardKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('model_card')
         .select(select, { count: 'exact' });
 
@@ -219,7 +219,7 @@ export const useModelCard = (
     queryFn: async () => {
       if (!id) throw new Error('Model Card ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_card')
         .select(select)
         .eq('id', id)
@@ -247,7 +247,7 @@ export const useModelCardByVersion = (
     queryFn: async () => {
       if (!modelVersionId) throw new Error('Model Version ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_card')
         .select(`
           *,
@@ -338,7 +338,7 @@ export const useCreateModelCard = (
 
   return useMutation({
     mutationFn: async (input: ModelCardInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_card')
         .insert(input)
         .select()
@@ -373,7 +373,7 @@ export const useUpdateModelCard = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: ModelCardUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('model_card')
         .update(data)
         .eq('id', id)
@@ -407,7 +407,7 @@ export const useDeleteModelCard = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('model_card')
         .delete()
         .eq('id', id);
@@ -438,7 +438,7 @@ export const useUpdateModelCardPerformance = (
 
   return useMutation({
     mutationFn: async ({ id, performance }: { id: string; performance: ModelPerformanceMetrics }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_card')
         .update({ performance })
         .eq('id', id)
@@ -471,7 +471,7 @@ export const useLinkModelCardToAISystem = (
 
   return useMutation({
     mutationFn: async ({ modelCardId, aiSystemId }: { modelCardId: string; aiSystemId: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_card')
         .update({ ai_system_id: aiSystemId })
         .eq('id', modelCardId)
@@ -505,7 +505,7 @@ export const useBumpModelCardVersion = (
 
   return useMutation({
     mutationFn: async ({ id, version }: { id: string; version: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('model_card')
         .update({
           version,

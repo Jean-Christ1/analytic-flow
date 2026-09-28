@@ -189,7 +189,7 @@ export const useBudgets = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: budgetKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('budget')
         .select(select, { count: 'exact' });
 
@@ -249,7 +249,7 @@ export const useBudget = (
     queryFn: async () => {
       if (!id) throw new Error('Budget ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('budget')
         .select(select)
         .eq('id', id)
@@ -404,7 +404,7 @@ export const useBudgetWithUsage = (
       if (!id) throw new Error('Budget ID is required');
 
       // Get the budget
-      const { data: budget, error: budgetError } = await supabase
+      const { data: budget, error: budgetError } = await (supabase as any)
         .from('budget')
         .select('*')
         .eq('id', id)
@@ -416,7 +416,7 @@ export const useBudgetWithUsage = (
       const periodDates = getBudgetPeriodDates(typedBudget.period);
 
       // Get cost records for this budget's scope
-      let costQuery = supabase
+      let costQuery = (supabase as any)
         .from('cost_record')
         .select('cost_amount')
         .gte('usage_start', periodDates.start)
@@ -460,7 +460,7 @@ export const useBudgetsWithUsage = (options: { enabled?: boolean } = {}) => {
     queryKey: ['budgets', 'allWithUsage'],
     queryFn: async () => {
       // Get all budgets
-      const { data: budgets, error: budgetsError } = await supabase
+      const { data: budgets, error: budgetsError } = await (supabase as any)
         .from('budget')
         .select('*');
 
@@ -468,7 +468,7 @@ export const useBudgetsWithUsage = (options: { enabled?: boolean } = {}) => {
 
       // Get all cost records for this period (use monthly as default)
       const periodDates = getBudgetPeriodDates('monthly');
-      const { data: costs, error: costsError } = await supabase
+      const { data: costs, error: costsError } = await (supabase as any)
         .from('cost_record')
         .select('cost_amount, project_id')
         .gte('usage_start', periodDates.start)
@@ -587,7 +587,7 @@ export const useBudgetAlerts = (
       if (!budgetId) throw new Error('Budget ID is required');
 
       // Get the budget with its thresholds
-      const { data: budget, error: budgetError } = await supabase
+      const { data: budget, error: budgetError } = await (supabase as any)
         .from('budget')
         .select('id, threshold_percentages')
         .eq('id', budgetId)
@@ -627,7 +627,7 @@ export const useBudgetAlertsSummary = (options: { enabled?: boolean } = {}) => {
   return useQuery({
     queryKey: ['budgets', 'alertsSummary'],
     queryFn: async () => {
-      const { data: budgets, error } = await supabase
+      const { data: budgets, error } = await (supabase as any)
         .from('budget')
         .select('id, name, scope_type, threshold_percentages');
 
@@ -686,7 +686,7 @@ export const useCreateBudget = (
         currency: input.currency ?? 'USD',
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('budget')
         .insert(inputWithDefaults)
         .select()
@@ -719,7 +719,7 @@ export const useUpdateBudget = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: BudgetUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('budget')
         .update(data)
         .eq('id', id)
@@ -755,7 +755,7 @@ export const useDeleteBudget = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('budget')
         .delete()
         .eq('id', id);
@@ -787,7 +787,7 @@ export const useUpdateBudgetThresholds = (
 
   return useMutation({
     mutationFn: async ({ id, thresholds }: { id: string; thresholds: BudgetThreshold[] }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('budget')
         .update({ threshold_percentages: thresholds })
         .eq('id', id)
@@ -821,7 +821,7 @@ export const useUpdateBudgetAlertChannels = (
 
   return useMutation({
     mutationFn: async ({ id, channels }: { id: string; channels: AlertChannel[] }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('budget')
         .update({ alert_channels: channels })
         .eq('id', id)

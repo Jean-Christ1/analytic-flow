@@ -190,7 +190,7 @@ export const useMetricsByRun = (
     queryFn: async () => {
       if (!runId) throw new Error('Run ID is required');
 
-      let query = supabase
+      let query = (supabase as any)
         .from('ml_run_metric')
         .select('*', { count: 'exact' })
         .eq('run_id', runId);
@@ -239,7 +239,7 @@ export const useMetricSeries = (
     queryFn: async () => {
       if (!runId) throw new Error('Run ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run_metric')
         .select('*')
         .eq('run_id', runId)
@@ -254,7 +254,7 @@ export const useMetricSeries = (
       }
 
       // Get run name
-      const { data: run } = await supabase
+      const { data: run } = await (supabase as any)
         .from('ml_run')
         .select('name')
         .eq('id', runId)
@@ -299,7 +299,7 @@ export const useMetricKeys = (
       if (!runId) throw new Error('Run ID is required');
 
       // TODO: Use a distinct query or RPC function
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run_metric')
         .select('key')
         .eq('run_id', runId);
@@ -328,7 +328,7 @@ export const useLatestMetrics = (
       if (!runId) throw new Error('Run ID is required');
 
       // TODO: This should be a server-side function
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_run_metric')
         .select('*')
         .eq('run_id', runId)
@@ -366,7 +366,7 @@ export const useCompareMetrics = (
       if (runIds.length === 0) throw new Error('At least one run ID is required');
 
       // Fetch runs info
-      const { data: runs, error: runsError } = await supabase
+      const { data: runs, error: runsError } = await (supabase as any)
         .from('ml_run')
         .select('id, name')
         .in('id', runIds);
@@ -375,7 +375,7 @@ export const useCompareMetrics = (
 
       // Fetch latest metric value for each run
       // TODO: Use a server-side function for this
-      const { data: metrics, error: metricsError } = await supabase
+      const { data: metrics, error: metricsError } = await (supabase as any)
         .from('ml_run_metric')
         .select('*')
         .in('run_id', runIds)
@@ -450,7 +450,7 @@ export const useAggregateMetrics = (
       if (!experimentId) throw new Error('Experiment ID is required');
 
       // Get all runs for experiment
-      const { data: runs, error: runsError } = await supabase
+      const { data: runs, error: runsError } = await (supabase as any)
         .from('ml_run')
         .select('id')
         .eq('experiment_id', experimentId)
@@ -470,7 +470,7 @@ export const useAggregateMetrics = (
       }
 
       // Get metrics for these runs
-      let query = supabase
+      let query = (supabase as any)
         .from('ml_run_metric')
         .select('*')
         .in('run_id', runIds)
@@ -560,7 +560,7 @@ export const useMetricDefinitions = (
     queryFn: async () => {
       if (!projectId) throw new Error('Project ID is required');
 
-      let query = supabase
+      let query = (supabase as any)
         .from('ml_metric_definition')
         .select('*', { count: 'exact' })
         .eq('project_id', projectId);
@@ -617,7 +617,7 @@ export const useMetricDefinition = (
     queryFn: async () => {
       if (!projectId) throw new Error('Project ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_metric_definition')
         .select('*')
         .eq('project_id', projectId)
@@ -654,7 +654,7 @@ export const useMetricAlerts = (
     queryFn: async () => {
       if (!tenantId) throw new Error('Tenant ID is required');
 
-      let query = supabase
+      let query = (supabase as any)
         .from('ml_metric_alert')
         .select('*')
         .eq('tenant_id', tenantId)
@@ -692,7 +692,7 @@ export const useUnacknowledgedAlertsCount = (
     queryFn: async () => {
       if (!tenantId) throw new Error('Tenant ID is required');
 
-      const { count, error } = await supabase
+      const { count, error } = await (supabase as any)
         .from('ml_metric_alert')
         .select('*', { count: 'exact', head: true })
         .eq('tenant_id', tenantId)
@@ -720,7 +720,7 @@ export const useCreateMetricDefinition = (
 
   return useMutation({
     mutationFn: async (input: MetricDefinitionInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_metric_definition')
         .insert(input)
         .select()
@@ -752,7 +752,7 @@ export const useUpdateMetricDefinition = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: MetricDefinitionUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('ml_metric_definition')
         .update(data)
         .eq('id', id)
@@ -786,7 +786,7 @@ export const useDeleteMetricDefinition = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('ml_metric_definition')
         .delete()
         .eq('id', id);
@@ -817,7 +817,7 @@ export const useAcknowledgeMetricAlert = (
 
   return useMutation({
     mutationFn: async ({ id, userId }: { id: string; userId: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('ml_metric_alert')
         .update({
           acknowledged: true,
@@ -854,7 +854,7 @@ export const useBulkAcknowledgeAlerts = (
 
   return useMutation({
     mutationFn: async ({ alertIds, userId }: { alertIds: string[]; userId: string }) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('ml_metric_alert')
         .update({
           acknowledged: true,

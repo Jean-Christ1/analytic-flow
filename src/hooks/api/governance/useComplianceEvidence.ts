@@ -128,7 +128,7 @@ export const useComplianceEvidence = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: complianceEvidenceKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('compliance_evidence')
         .select(select, { count: 'exact' });
 
@@ -191,7 +191,7 @@ export const useComplianceEvidenceById = (
     queryFn: async () => {
       if (!id) throw new Error('Compliance Evidence ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compliance_evidence')
         .select(select)
         .eq('id', id)
@@ -301,7 +301,7 @@ export const useEvidenceSummary = (
     queryFn: async () => {
       if (!entityId) throw new Error('Entity ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compliance_evidence')
         .select(`
           id,
@@ -371,7 +371,7 @@ export const useComplianceGaps = (
       if (!entityId) throw new Error('Entity ID is required');
 
       // Get all required controls
-      let controlsQuery = supabase
+      let controlsQuery = (supabase as any)
         .from('compliance_control')
         .select('id, control_code, title, framework, evidence_required');
 
@@ -384,7 +384,7 @@ export const useComplianceGaps = (
       if (controlsError) throw controlsError;
 
       // Get existing evidence for this entity
-      const { data: evidence, error: evidenceError } = await supabase
+      const { data: evidence, error: evidenceError } = await (supabase as any)
         .from('compliance_evidence')
         .select('control_id, status')
         .eq('entity_type', entityType)
@@ -431,7 +431,7 @@ export const useCreateComplianceEvidence = (
 
   return useMutation({
     mutationFn: async (input: ComplianceEvidenceInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compliance_evidence')
         .insert(input)
         .select()
@@ -469,7 +469,7 @@ export const useUpdateComplianceEvidence = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: ComplianceEvidenceUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('compliance_evidence')
         .update(data)
         .eq('id', id)
@@ -504,7 +504,7 @@ export const useDeleteComplianceEvidence = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('compliance_evidence')
         .delete()
         .eq('id', id);
@@ -537,7 +537,7 @@ export const useSubmitEvidence = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compliance_evidence')
         .update({ status: 'submitted' as ComplianceEvidenceStatus })
         .eq('id', id)
@@ -571,7 +571,7 @@ export const useValidateEvidence = (
 
   return useMutation({
     mutationFn: async ({ id, validatorId }: { id: string; validatorId: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compliance_evidence')
         .update({
           status: 'validated' as ComplianceEvidenceStatus,
@@ -611,7 +611,7 @@ export const useRejectEvidence = (
 
   return useMutation({
     mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compliance_evidence')
         .update({
           status: 'rejected' as ComplianceEvidenceStatus,
@@ -648,7 +648,7 @@ export const useAttachArtifact = (
 
   return useMutation({
     mutationFn: async ({ evidenceId, artifactId }: { evidenceId: string; artifactId: string }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compliance_evidence')
         .update({ artifact_id: artifactId })
         .eq('id', evidenceId)
@@ -681,7 +681,7 @@ export const useBulkCreateEvidence = (
 
   return useMutation({
     mutationFn: async (evidenceList: ComplianceEvidenceInsert[]) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('compliance_evidence')
         .insert(evidenceList)
         .select();

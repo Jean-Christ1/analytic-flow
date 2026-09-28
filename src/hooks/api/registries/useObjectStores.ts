@@ -121,7 +121,7 @@ export const useObjectStores = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: objectStoreKeys.list({ pagination, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('object_store')
         .select(select, { count: 'exact' });
 
@@ -160,7 +160,7 @@ export const useObjectStore = (storeId: string, options: { enabled?: boolean } =
   return useQuery({
     queryKey: objectStoreKeys.detail(storeId),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('object_store')
         .select('*')
         .eq('id', storeId)
@@ -180,7 +180,7 @@ export const useObjectStoreByName = (name: string, options: { enabled?: boolean 
   return useQuery({
     queryKey: [...objectStoreKeys.all, 'name', name] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('object_store')
         .select('*')
         .eq('name', name)
@@ -200,7 +200,7 @@ export const useDefaultObjectStore = () => {
   return useQuery({
     queryKey: objectStoreQueryKeys.default(),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('object_store')
         .select('*')
         .eq('is_default', true)
@@ -219,7 +219,7 @@ export const useObjectStoresByType = (type: ObjectStoreType) => {
   return useQuery({
     queryKey: objectStoreQueryKeys.byType(type),
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('object_store')
         .select('*')
         .eq('type', type)
@@ -238,7 +238,7 @@ export const useSearchObjectStores = (searchTerm: string) => {
   return useQuery({
     queryKey: [...objectStoreKeys.all, 'search', searchTerm] as const,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('object_store')
         .select('*')
         .ilike('name', `%${searchTerm}%`)
@@ -265,7 +265,7 @@ export const useCreateObjectStore = (
 
   return useMutation({
     mutationFn: async (store: ObjectStoreInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('object_store')
         .insert(store)
         .select()
@@ -296,7 +296,7 @@ export const useUpdateObjectStore = (
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: ObjectStoreUpdate }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('object_store')
         .update(updates)
         .eq('id', id)
@@ -327,7 +327,7 @@ export const useDeleteObjectStore = (
 
   return useMutation({
     mutationFn: async (storeId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('object_store')
         .delete()
         .eq('id', storeId);
@@ -354,13 +354,13 @@ export const useSetDefaultObjectStore = (
   return useMutation({
     mutationFn: async (storeId: string) => {
       // First, unset any existing default
-      await supabase
+      await (supabase as any)
         .from('object_store')
         .update({ is_default: false })
         .eq('is_default', true);
 
       // Then set the new default
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('object_store')
         .update({ is_default: true })
         .eq('id', storeId)
@@ -389,7 +389,7 @@ export const useUpdateRetentionPolicy = (
 
   return useMutation({
     mutationFn: async ({ id, retentionPolicy }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('object_store')
         .update({ retention_policy: retentionPolicy })
         .eq('id', id)
@@ -418,7 +418,7 @@ export const useUpdateKmsKeyRef = (
 
   return useMutation({
     mutationFn: async ({ id, kmsKeyRef }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('object_store')
         .update({ kms_key_ref: kmsKeyRef })
         .eq('id', id)
@@ -447,7 +447,7 @@ export const useUpdateObjectStoreAuth = (
 
   return useMutation({
     mutationFn: async ({ id, authSecretRef }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('object_store')
         .update({ auth_secret_ref: authSecretRef })
         .eq('id', id)

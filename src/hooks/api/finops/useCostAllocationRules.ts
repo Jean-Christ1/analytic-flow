@@ -139,7 +139,7 @@ export const useCostAllocationRules = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: costAllocationRuleKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('cost_allocation_rule')
         .select(select, { count: 'exact' });
 
@@ -199,7 +199,7 @@ export const useCostAllocationRule = (
     queryFn: async () => {
       if (!id) throw new Error('Cost Allocation Rule ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cost_allocation_rule')
         .select(select)
         .eq('id', id)
@@ -263,7 +263,7 @@ export const useRuleTypeDistribution = (options: { enabled?: boolean } = {}) => 
   return useQuery({
     queryKey: ['costAllocationRules', 'distribution'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cost_allocation_rule')
         .select('rule_type, enabled');
 
@@ -377,7 +377,7 @@ export const useCreateCostAllocationRule = (
 
   return useMutation({
     mutationFn: async (input: CostAllocationRuleInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cost_allocation_rule')
         .insert(input)
         .select()
@@ -410,7 +410,7 @@ export const useUpdateCostAllocationRule = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: CostAllocationRuleUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('cost_allocation_rule')
         .update(data)
         .eq('id', id)
@@ -445,7 +445,7 @@ export const useDeleteCostAllocationRule = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('cost_allocation_rule')
         .delete()
         .eq('id', id);
@@ -477,7 +477,7 @@ export const useToggleCostAllocationRule = (
 
   return useMutation({
     mutationFn: async ({ id, enabled }: { id: string; enabled: boolean }) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cost_allocation_rule')
         .update({ enabled })
         .eq('id', id)
@@ -548,7 +548,7 @@ export const useBulkCreateCostAllocationRules = (
 
   return useMutation({
     mutationFn: async (rules: CostAllocationRuleInsert[]) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('cost_allocation_rule')
         .insert(rules)
         .select();

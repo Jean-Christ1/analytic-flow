@@ -120,7 +120,7 @@ export const useBillingAccounts = (options: ListQueryOptions = {}) => {
   return useQuery({
     queryKey: billingAccountKeys.list({ page, pageSize, sort, filters, search }),
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('billing_account')
         .select(select, { count: 'exact' });
 
@@ -180,7 +180,7 @@ export const useBillingAccount = (
     queryFn: async () => {
       if (!id) throw new Error('Billing Account ID is required');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('billing_account')
         .select(select)
         .eq('id', id)
@@ -288,7 +288,7 @@ export const useBillingAccountSyncStatus = (
       if (!accountId) throw new Error('Billing Account ID is required');
 
       // Fetch the billing account to get sync-related fields
-      const { data: account, error: accountError } = await supabase
+      const { data: account, error: accountError } = await (supabase as any)
         .from('billing_account')
         .select('id, sync_status, last_sync_at, config')
         .eq('id', accountId)
@@ -297,7 +297,7 @@ export const useBillingAccountSyncStatus = (
       if (accountError) throw accountError;
 
       // Get count of cost records for this account
-      const { count, error: countError } = await supabase
+      const { count, error: countError } = await (supabase as any)
         .from('cost_record')
         .select('*', { count: 'exact', head: true })
         .eq('billing_account_id', accountId);
@@ -341,7 +341,7 @@ export const useBillingAccountSummary = (
       if (!id) throw new Error('Billing Account ID is required');
 
       // Get the billing account
-      const { data: account, error: accountError } = await supabase
+      const { data: account, error: accountError } = await (supabase as any)
         .from('billing_account')
         .select('*')
         .eq('id', id)
@@ -350,7 +350,7 @@ export const useBillingAccountSummary = (
       if (accountError) throw accountError;
 
       // Get cost records for this account
-      let costQuery = supabase
+      let costQuery = (supabase as any)
         .from('cost_record')
         .select('cost_amount, service, created_at')
         .eq('billing_account_id', id);
@@ -397,7 +397,7 @@ export const useProviderSummary = (options: { enabled?: boolean } = {}) => {
   return useQuery({
     queryKey: ['billingAccounts', 'providers'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('billing_account')
         .select('provider');
 
@@ -433,7 +433,7 @@ export const useCreateBillingAccount = (
 
   return useMutation({
     mutationFn: async (input: BillingAccountInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('billing_account')
         .insert(input)
         .select()
@@ -466,7 +466,7 @@ export const useUpdateBillingAccount = (
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: BillingAccountUpdate }) => {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await (supabase as any)
         .from('billing_account')
         .update(data)
         .eq('id', id)
@@ -501,7 +501,7 @@ export const useDeleteBillingAccount = (
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('billing_account')
         .delete()
         .eq('id', id);
@@ -540,7 +540,7 @@ export const useSyncBillingAccount = (
       // 3. Updates the billing account last_sync timestamp
 
       // For now, just update the timestamp
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('billing_account')
         .update({ updated_at: new Date().toISOString() })
         .eq('id', id)
