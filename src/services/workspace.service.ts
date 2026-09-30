@@ -69,7 +69,7 @@ export interface WorkspaceResourceUsage {
 // ============================================================================
 
 class WorkspaceService {
-  private statusPollers: Map<string, NodeJS.Timeout> = new Map();
+  private statusPollers: Map<string, ReturnType<typeof setInterval>> = new Map();
 
   /**
    * Launch a new workspace

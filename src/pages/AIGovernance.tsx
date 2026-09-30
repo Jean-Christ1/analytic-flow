@@ -324,7 +324,7 @@ const AIGovernance = () => {
   const {
     data: overallComplianceStatusRaw,
     isLoading: isLoadingComplianceStatus,
-  } = useComplianceStatus();
+  } = useComplianceStatus('tenant', 'all');
 
   // Compliance Evidence
   const {
@@ -344,7 +344,7 @@ const AIGovernance = () => {
   const {
     data: complianceGapsRaw,
     isLoading: isLoadingGaps,
-  } = useComplianceGaps();
+  } = useComplianceGaps('ai_system' as any, undefined);
 
   // Governance Incidents
   const {
@@ -376,7 +376,7 @@ const AIGovernance = () => {
   const {
     data: incidentTrendsRaw,
     isLoading: isLoadingIncidentTrends,
-  } = useIncidentTrends("monthly", 6);
+  } = useIncidentTrends(180);
 
   // Normalize paginated hook results to plain arrays
   const incidentTrends: any = incidentTrendsRaw as any;
@@ -412,13 +412,13 @@ const AIGovernance = () => {
   // -------------------------------------------------------------------------
   // Computed Values
   // -------------------------------------------------------------------------
-  const aiSystems = aiSystemsData?.data || [];
+  const aiSystems: any[] = ((aiSystemsData?.data || []) as any[]);
   const totalAISystems = aiSystemsData?.count || 0;
-  const modelCards = modelCardsData?.data || [];
-  const riskAssessments = riskAssessmentsData?.data || [];
-  const complianceControls = complianceControlsData?.data || [];
-  const evidence = evidenceData?.data || [];
-  const incidents = incidentsData?.data || [];
+  const modelCards: any[] = ((modelCardsData?.data || []) as any[]);
+  const riskAssessments: any[] = ((riskAssessmentsData?.data || []) as any[]);
+  const complianceControls: any[] = ((complianceControlsData?.data || []) as any[]);
+  const evidence: any[] = ((evidenceData?.data || []) as any[]);
+  const incidents: any[] = ((incidentsData?.data || []) as any[]);
 
   // Calculate compliance score
   const complianceScore = useMemo(() => {
@@ -1261,7 +1261,7 @@ const AIGovernance = () => {
                 <CardContent className="pb-3 px-4">
                   <ScrollArea className="h-[200px]">
                     <div className="space-y-2">
-                      {EU_AI_ACT_CONTROLS.map((control, i) => {
+                      {(EU_AI_ACT_CONTROLS as any[]).map((control, i) => {
                         const dbControl = euAIActControls?.find(c => c.control_id === control.control_id);
                         const status = dbControl?.status || "not_started";
 
