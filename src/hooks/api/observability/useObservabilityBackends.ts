@@ -115,7 +115,7 @@ export const useObservabilityBackends = (options: ListQueryOptions = {}) => {
       // Apply filters
       if (filters) {
         for (const filter of filters) {
-          // @ts-expect-error - Dynamic filter application
+          // @ts-ignore - Dynamic filter application
           query = query[filter.operator](filter.column, filter.value);
         }
       }
