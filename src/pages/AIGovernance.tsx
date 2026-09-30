@@ -156,14 +156,14 @@ type StatusFilter = AISystemStatus | "all";
 // ============================================================================
 const ITEMS_PER_PAGE = 5;
 
-const RISK_CLASS_CONFIG: Record<AIRiskClass, { color: string; bgColor: string; label: string }> = {
+const RISK_CLASS_CONFIG: Record<string, { color: string; bgColor: string; label: string }> = {
   unacceptable: { color: "text-destructive", bgColor: "bg-destructive/10", label: "Unacceptable" },
   high: { color: "text-warning", bgColor: "bg-warning/10", label: "High Risk" },
   limited: { color: "text-info", bgColor: "bg-info/10", label: "Limited Risk" },
   minimal: { color: "text-success", bgColor: "bg-success/10", label: "Minimal Risk" },
 };
 
-const STATUS_CONFIG: Record<AISystemStatus, { color: string; icon: React.ElementType }> = {
+const STATUS_CONFIG: Record<string, { color: string; icon: React.ElementType }> = {
   draft: { color: "secondary", icon: FileText },
   under_review: { color: "warning", icon: Clock },
   approved: { color: "success", icon: CheckCircle },
@@ -171,7 +171,7 @@ const STATUS_CONFIG: Record<AISystemStatus, { color: string; icon: React.Element
   retired: { color: "secondary", icon: Shield },
 };
 
-const INCIDENT_TYPE_LABELS: Record<GovernanceIncidentType, string> = {
+const INCIDENT_TYPE_LABELS: Record<string, string> = {
   bias_detected: "Bias Detected",
   performance_degradation: "Performance Degradation",
   data_breach: "Data Breach",
@@ -262,13 +262,13 @@ const AIGovernance = () => {
 
   // High Risk Systems
   const {
-    data: highRiskSystems,
+    data: highRiskSystemsRaw,
     isLoading: isLoadingHighRisk,
   } = useHighRiskAISystems();
 
   // Compliance Summary
   const {
-    data: complianceSummary,
+    data: complianceSummaryRaw,
     isLoading: isLoadingComplianceSummary,
   } = useAISystemComplianceSummary();
 
@@ -282,7 +282,7 @@ const AIGovernance = () => {
 
   // Stale Model Cards
   const {
-    data: staleModelCards,
+    data: staleModelCardsRaw,
     isLoading: isLoadingStaleCards,
   } = useStaleModelCards(90);
 
@@ -296,13 +296,13 @@ const AIGovernance = () => {
 
   // Risk Assessments Requiring Review
   const {
-    data: assessmentsRequiringReview,
+    data: assessmentsRequiringReviewRaw,
     isLoading: isLoadingReviewRequired,
   } = useRiskAssessmentsRequiringReview();
 
   // Risk Assessment Stats
   const {
-    data: riskStats,
+    data: riskStatsRaw,
     isLoading: isLoadingRiskStats,
   } = useRiskAssessmentStats();
 
@@ -316,13 +316,13 @@ const AIGovernance = () => {
 
   // EU AI Act Controls
   const {
-    data: euAIActControls,
+    data: euAIActControlsRaw,
     isLoading: isLoadingEUControls,
   } = useEUAIActControls();
 
   // Compliance Status
   const {
-    data: overallComplianceStatus,
+    data: overallComplianceStatusRaw,
     isLoading: isLoadingComplianceStatus,
   } = useComplianceStatus();
 
@@ -336,13 +336,13 @@ const AIGovernance = () => {
 
   // Pending Evidence
   const {
-    data: pendingEvidence,
+    data: pendingEvidenceRaw,
     isLoading: isLoadingPendingEvidence,
   } = usePendingEvidence();
 
   // Compliance Gaps
   const {
-    data: complianceGaps,
+    data: complianceGapsRaw,
     isLoading: isLoadingGaps,
   } = useComplianceGaps();
 
@@ -356,27 +356,42 @@ const AIGovernance = () => {
 
   // Open Incidents
   const {
-    data: openIncidents,
+    data: openIncidentsRaw,
     isLoading: isLoadingOpenIncidents,
   } = useOpenGovernanceIncidents();
 
   // Critical Incidents
   const {
-    data: criticalIncidents,
+    data: criticalIncidentsRaw,
     isLoading: isLoadingCriticalIncidents,
   } = useCriticalGovernanceIncidents();
 
   // Incident Stats
   const {
-    data: incidentStatsData,
+    data: incidentStatsDataRaw,
     isLoading: isLoadingIncidentStats,
   } = useIncidentStats();
 
   // Incident Trends
   const {
-    data: incidentTrends,
+    data: incidentTrendsRaw,
     isLoading: isLoadingIncidentTrends,
   } = useIncidentTrends("monthly", 6);
+
+  // Normalize paginated hook results to plain arrays
+  const incidentTrends: any = incidentTrendsRaw as any;
+  const incidentStatsData: any = incidentStatsDataRaw as any;
+  const overallComplianceStatus: any = overallComplianceStatusRaw as any;
+  const riskStats: any = riskStatsRaw as any;
+  const complianceSummary: any = complianceSummaryRaw as any;
+  const complianceGaps: any[] = ((complianceGapsRaw as any)?.gaps ?? (complianceGapsRaw as any) ?? []) as any[];
+  const highRiskSystems: any[] = ((highRiskSystemsRaw as any)?.data ?? (highRiskSystemsRaw as any) ?? []) as any[];
+  const staleModelCards: any[] = ((staleModelCardsRaw as any)?.data ?? (staleModelCardsRaw as any) ?? []) as any[];
+  const assessmentsRequiringReview: any[] = ((assessmentsRequiringReviewRaw as any)?.data ?? (assessmentsRequiringReviewRaw as any) ?? []) as any[];
+  const pendingEvidence: any[] = ((pendingEvidenceRaw as any)?.data ?? (pendingEvidenceRaw as any) ?? []) as any[];
+  const openIncidents: any[] = ((openIncidentsRaw as any)?.data ?? (openIncidentsRaw as any) ?? []) as any[];
+  const criticalIncidents: any[] = ((criticalIncidentsRaw as any)?.data ?? (criticalIncidentsRaw as any) ?? []) as any[];
+  const euAIActControls: any[] = ((euAIActControlsRaw as any)?.data ?? (euAIActControlsRaw as any) ?? []) as any[];
 
   // -------------------------------------------------------------------------
   // Mutations
@@ -408,8 +423,8 @@ const AIGovernance = () => {
   // Calculate compliance score
   const complianceScore = useMemo(() => {
     if (!overallComplianceStatus) return 0;
-    const total = overallComplianceStatus.total_controls || 0;
-    const compliant = overallComplianceStatus.compliant_controls || 0;
+    const total = overallComplianceStatus.total ?? overallComplianceStatus.total_controls ?? 0;
+    const compliant = overallComplianceStatus.compliant ?? overallComplianceStatus.compliant_controls ?? 0;
     return total > 0 ? (compliant / total) * 100 : 0;
   }, [overallComplianceStatus]);
 
@@ -417,9 +432,9 @@ const AIGovernance = () => {
   const riskDistribution = useMemo(() => {
     if (!complianceSummary) return [];
     return [
-      { name: "High Risk", value: complianceSummary.high_risk_count || 0, color: "hsl(var(--warning))" },
-      { name: "Limited", value: complianceSummary.limited_risk_count || 0, color: "hsl(var(--info))" },
-      { name: "Minimal", value: complianceSummary.minimal_risk_count || 0, color: "hsl(var(--success))" },
+      { name: "High Risk", value: complianceSummary.byRiskClass?.high ?? complianceSummary.high_risk_count ?? 0, color: "hsl(var(--warning))" },
+      { name: "Limited", value: complianceSummary.byRiskClass?.limited ?? complianceSummary.limited_risk_count ?? 0, color: "hsl(var(--info))" },
+      { name: "Minimal", value: complianceSummary.byRiskClass?.minimal ?? complianceSummary.minimal_risk_count ?? 0, color: "hsl(var(--success))" },
     ].filter(item => item.value > 0);
   }, [complianceSummary]);
 
@@ -452,11 +467,11 @@ const AIGovernance = () => {
 
   // Incident trend data for chart
   const incidentTrendData = useMemo(() => {
-    return (incidentTrends || []).map(trend => ({
-      period: trend.period,
-      total: trend.total_incidents,
-      resolved: trend.resolved_incidents,
-      critical: trend.critical_incidents,
+    return ((incidentTrends || []) as any[]).map((trend: any) => ({
+      period: trend.period ?? trend.date,
+      total: trend.total_incidents ?? trend.count ?? 0,
+      resolved: trend.resolved_incidents ?? 0,
+      critical: trend.critical_incidents ?? trend.bySeverity?.critical ?? 0,
     }));
   }, [incidentTrends]);
 
