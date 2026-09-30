@@ -510,7 +510,7 @@ export const useCompareRuns = (
 
         // Add params
         for (const key of paramsKeys) {
-          comparisonMatrix[run.id][`param_${key}`] = run.params?.[key] ?? null;
+          comparisonMatrix[run.id][`param_${String(key)}`] = run.params?.[key] ?? null;
         }
       }
 
