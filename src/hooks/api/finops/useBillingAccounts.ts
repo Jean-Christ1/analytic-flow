@@ -84,7 +84,7 @@ export interface BillingAccountUpdate {
   config?: Record<string, unknown> | null;
 }
 
-export interface BillingAccountWithStats extends BillingAccount {
+export interface BillingAccountWithStats extends Omit<BillingAccount, 'last_sync_at'> {
   total_cost?: number;
   cost_records_count?: number;
   last_sync_at?: string | null;
@@ -127,7 +127,7 @@ export const useBillingAccounts = (options: ListQueryOptions = {}) => {
       // Apply filters
       if (filters) {
         for (const filter of filters) {
-          // @ts-expect-error - Dynamic filter application
+          // @ts-ignore - Dynamic filter application
           query = query[filter.operator](filter.column, filter.value);
         }
       }

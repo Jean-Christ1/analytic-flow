@@ -489,7 +489,7 @@ export const useEnvironmentBuilds = (
         .from('environment_build')
         .select('*', { count: 'exact' })
         .eq('environment_id', environmentId)
-        .order(sort.column, { ascending: sort.ascending ?? false })
+        .order((Array.isArray(sort) ? sort[0] : sort).column, { ascending: (Array.isArray(sort) ? sort[0] : sort).ascending ?? false })
         .range(offset, offset + pageSize - 1);
 
       if (error) throw error;

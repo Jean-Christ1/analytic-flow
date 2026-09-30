@@ -197,11 +197,17 @@ class ExperimentService {
    * Archive an experiment
    */
   async archiveExperiment(experimentId: string): Promise<void> {
+    const { data: current } = await (supabase as any)
+      .from('experiment')
+      .select('tags')
+      .eq('id', experimentId)
+      .single();
+
+    const nextTags = Array.from(new Set([...((current?.tags as string[]) || []), 'archived']));
+
     const { error } = await (supabase as any)
       .from('experiment')
-      .update({
-        tags: supabase.sql`array_append(tags, 'archived')`,
-      })
+      .update({ tags: nextTags })
       .eq('id', experimentId);
 
     if (error) {

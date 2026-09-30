@@ -175,7 +175,7 @@ export const useRuns = (options: ListQueryOptions = {}) => {
       // Apply filters
       if (filters) {
         for (const filter of filters) {
-          // @ts-expect-error - Dynamic filter application
+          // @ts-ignore - Dynamic filter application
           query = query[filter.operator](filter.column, filter.value);
         }
       }
@@ -232,7 +232,7 @@ export const useInfiniteRuns = (
       // Apply filters
       if (filters) {
         for (const filter of filters) {
-          // @ts-expect-error - Dynamic filter application
+          // @ts-ignore - Dynamic filter application
           query = query[filter.operator](filter.column, filter.value);
         }
       }
@@ -510,7 +510,7 @@ export const useCompareRuns = (
 
         // Add params
         for (const key of paramsKeys) {
-          comparisonMatrix[run.id][`param_${key}`] = run.params?.[key] ?? null;
+          comparisonMatrix[run.id][`param_${String(key)}`] = (run.params as any)?.[key as any] ?? null;
         }
       }
 

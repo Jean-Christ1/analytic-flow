@@ -354,14 +354,21 @@ class ModelService {
     deploymentId: string,
     replicas: number
   ): Promise<void> {
+    const { data: current } = await (supabase as any)
+      .from('model_deployment')
+      .select('scaling')
+      .eq('id', deploymentId)
+      .single();
+
+    const nextScaling = {
+      ...((current?.scaling as Record<string, unknown>) || {}),
+      min_replicas: replicas,
+      max_replicas: replicas,
+    };
+
     const { error } = await (supabase as any)
       .from('model_deployment')
-      .update({
-        scaling: supabase.sql`
-          jsonb_set(scaling, '{min_replicas}', '${replicas}'::jsonb) ||
-          jsonb_set(scaling, '{max_replicas}', '${replicas}'::jsonb)
-        `,
-      })
+      .update({ scaling: nextScaling })
       .eq('id', deploymentId);
 
     if (error) {
