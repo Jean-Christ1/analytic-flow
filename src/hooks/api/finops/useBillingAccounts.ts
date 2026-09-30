@@ -84,7 +84,7 @@ export interface BillingAccountUpdate {
   config?: Record<string, unknown> | null;
 }
 
-export interface BillingAccountWithStats extends BillingAccount {
+export interface BillingAccountWithStats extends Omit<BillingAccount, 'last_sync_at'> {
   total_cost?: number;
   cost_records_count?: number;
   last_sync_at?: string | null;

@@ -38,7 +38,8 @@ export * from './governance';
 export * from './finops';
 
 // Observability Domain - Backends, Links, Incidents, SLA Policies
-export * from './observability';
+// observability exports are namespaced to avoid name clashes with governance/mlops
+export * as observability from './observability';
 
 // Utils
 export * from './utils/query-utils';

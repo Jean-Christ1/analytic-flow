@@ -499,9 +499,9 @@ export const useActivityStats = (projectId?: string, days: number = 30) => {
         acc[date].byEventType[activity.event_type as ActivityEventType] =
           (acc[date].byEventType[activity.event_type as ActivityEventType] || 0) + 1;
         return acc;
-      }, {} as Record<string, ActivityAggregation>);
+      }, {} as Record<string, any>);
 
-      return Object.values(aggregations).sort((a, b) => a.date.localeCompare(b.date));
+      return (Object.values(aggregations) as ActivityAggregation[]).sort((a, b) => a.date.localeCompare(b.date));
     },
   });
 };
