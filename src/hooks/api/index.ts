@@ -23,7 +23,7 @@ export * from './registries';
 export * from './mlops';
 
 // CI/CD Domain - Git Providers, Pipelines, ArgoCD
-export * from './cicd';
+export * as cicd from './cicd';
 
 // Collaboration Domain - Comments, Tasks, Notifications, Activity Feed
 export * from './collaboration';
@@ -32,10 +32,10 @@ export * from './collaboration';
 export * from './advanced';
 
 // Governance Domain - AI Systems, Model Cards, Risk Assessments, Compliance (EU AI Act)
-export * from './governance';
+export * as governance from './governance';
 
 // FinOps Domain - Billing, Costs, Budgets, Carbon Tracking (GreenOps)
-export * from './finops';
+export * as finops from './finops';
 
 // Observability Domain - Backends, Links, Incidents, SLA Policies
 // observability exports are namespaced to avoid name clashes with governance/mlops
