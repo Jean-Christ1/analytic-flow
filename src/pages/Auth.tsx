@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -92,7 +93,7 @@ const Auth = () => {
       }
     }
 
-    const { error } = await signUp(email, password, fullName);
+    const { error, needsConfirmation } = await signUp(email, password, fullName);
     
     if (error) {
       if (error.message.includes("already registered")) {
@@ -100,11 +101,28 @@ const Auth = () => {
       } else {
         toast.error(error.message);
       }
+    } else if (needsConfirmation) {
+      toast.success("Account created! Check your email to confirm, then sign in.");
+      setIsLogin(true);
     } else {
       toast.success("Account created successfully! Welcome aboard.");
     }
     
     setIsLoading(false);
+  };
+
+  const handleForgot = async () => {
+    try {
+      emailSchema.parse(email);
+    } catch {
+      toast.error("Enter your email address above first.");
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) toast.error(error.message);
+    else toast.success("Password reset email sent. Check your inbox.");
   };
 
   if (loading) {
@@ -298,6 +316,7 @@ const Auth = () => {
                 {isLogin && (
                   <button 
                     type="button" 
+                    onClick={handleForgot}
                     className="text-[10px] text-primary hover:text-primary/80 transition-colors"
                   >
                     Forgot password?
