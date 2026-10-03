@@ -36,14 +36,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { 
-  projects as platformProjects, 
-  models, 
-  experiments, 
-  deployments, 
-  datasets,
-  pipelines 
-} from "@/data/platformData";
+import { useDashboardData, timeAgo } from "@/hooks/useDashboardData";
 
 // Compact stat component
 const StatItem = ({ 
@@ -146,21 +139,23 @@ const MainKPI = ({
   </Card>
 );
 
-// Real activities from platform data
-const activities = [
-  { id: 1, action: "Model deployed", project: "Fraud Detection System", user: "Maria Kim", time: "2m ago", type: "deploy", projectId: "proj-003" },
-  { id: 2, action: "Experiment completed", project: "NLP Sentiment Analysis", user: "Tom Wilson", time: "15m ago", type: "experiment", projectId: "proj-002" },
-  { id: 3, action: "Pipeline triggered", project: "Computer Vision Pipeline", user: "Sarah Chen", time: "1h ago", type: "pipeline", projectId: "proj-001" },
-  { id: 4, action: "Data drift detected", project: "Tire Regulation Analysis", user: "System", time: "2h ago", type: "alert", projectId: "proj-006" },
-  { id: 5, action: "New model registered", project: "Recommendation Engine", user: "John Doe", time: "3h ago", type: "model", projectId: "proj-005" },
-  { id: 6, action: "Training completed", project: "Time Series Forecasting", user: "Alex Lee", time: "4h ago", type: "experiment", projectId: "proj-004" },
-];
 
 const Dashboard = () => {
   const { formatCurrency } = useCurrency();
   const navigate = useNavigate();
   const [projectPage, setProjectPage] = useState(0);
   const PROJECTS_PER_PAGE = 4;
+  const { data: d, dataUpdatedAt } = useDashboardData();
+  const fmt = (n?: number) => String(n ?? 0);
+  const activities = (d?.activity ?? []).map((a: any) => ({
+    id: a.id,
+    action: a.action,
+    project: a.resource_name ?? a.resource_type ?? "",
+    user: a.actor_type === "service" ? "System" : "User",
+    time: timeAgo(a.created_at),
+    type: /deploy/i.test(a.action) ? "deploy" : /run|experiment/i.test(a.action) ? "experiment" : /pipeline/i.test(a.action) ? "pipeline" : a.status === "failure" ? "alert" : /model/i.test(a.action) ? "model" : "other",
+  }));
+  const projects = d?.projects ?? [];
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -184,7 +179,7 @@ const Dashboard = () => {
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Clock className="h-3.5 w-3.5" />
-          <span>Last updated: 2 min ago</span>
+          <span>Last updated: {dataUpdatedAt ? timeAgo(new Date(dataUpdatedAt).toISOString()) : "…"}</span>
         </div>
       </div>
 
@@ -217,56 +212,48 @@ const Dashboard = () => {
               icon={Box}
               iconColor="text-primary"
               title="Models"
-              value={models.length.toString()}
-              trend="up"
-              trendValue="+12%"
+              value={fmt(d?.models.total)}
               tooltip="Total models across all environments"
             >
-              <StatItem label="Production" value={models.filter(m => m.stage === "Production").length.toString()} tooltip="Models in PROD" />
-              <StatItem label="Staging" value={models.filter(m => m.stage === "Staging").length.toString()} tooltip="Models in STAGING" />
-              <StatItem label="Development" value={models.filter(m => m.stage === "Development").length.toString()} tooltip="Models in DEV" />
+              <StatItem label="Approved versions" value={fmt(d?.models.approved)} tooltip="Versions approved for production" />
+              <StatItem label="Draft versions" value={fmt(d?.models.draft)} tooltip="Versions awaiting approval" />
+              <StatItem label="Deprecated" value={fmt(d?.models.deprecated)} tooltip="Retired versions" />
             </MainKPI>
 
             <MainKPI
               icon={FlaskConical}
               iconColor="text-info"
-              title="Experiments"
-              value={experiments.length.toString()}
-              trend="up"
-              trendValue="+23%"
-              tooltip="Total experiments this month"
+              title="Runs"
+              value={fmt(d?.runs.total)}
+              tooltip="Total training runs"
             >
-              <StatItem label="Running" value={experiments.filter(e => e.status === "running").length.toString()} tooltip="Currently executing" />
-              <StatItem label="Completed" value={experiments.filter(e => e.status === "completed").length.toString()} tooltip="Successfully finished" />
-              <StatItem label="Failed" value={experiments.filter(e => e.status === "failed").length.toString()} tooltip="Errors encountered" />
+              <StatItem label="Running" value={fmt(d?.runs.running)} tooltip="Currently executing" />
+              <StatItem label="Completed" value={fmt(d?.runs.succeeded)} tooltip="Successfully finished" />
+              <StatItem label="Failed" value={fmt(d?.runs.failed)} tooltip="Errors encountered" />
             </MainKPI>
 
             <MainKPI
               icon={Rocket}
               iconColor="text-success"
               title="Deployments"
-              value={deployments.length.toString()}
-              trend="up"
-              trendValue="+8%"
+              value={fmt(d?.deployments.total)}
               tooltip="Active model endpoints"
             >
-              <StatItem label="Healthy" value={deployments.filter(d => d.status === "healthy").length.toString()} tooltip="No issues detected" />
-              <StatItem label="Degraded" value={deployments.filter(d => d.status === "degraded").length.toString()} tooltip="Performance issues" />
-              <StatItem label="Failed" value={deployments.filter(d => d.status === "failed").length.toString()} tooltip="Immediate attention" />
+              <StatItem label="Healthy" value={fmt(d?.deployments.healthy)} tooltip="No issues detected" />
+              <StatItem label="Degraded" value={fmt(d?.deployments.degraded)} tooltip="Performance issues" />
+              <StatItem label="Failed" value={fmt(d?.deployments.failed)} tooltip="Immediate attention" />
             </MainKPI>
 
             <MainKPI
               icon={Coins}
               iconColor="text-warning"
               title="Monthly Cost"
-              value={formatCurrency(platformProjects.reduce((sum, p) => sum + p.resources.monthlyCost, 0), { compact: true })}
-              trend="down"
-              trendValue="-8%"
-              tooltip="Total platform costs"
+              value={formatCurrency(d?.cost.total ?? 0, { compact: true })}
+              tooltip="Platform costs since the 1st of this month"
             >
-              <StatItem label="Compute" value={formatCurrency(platformProjects.reduce((sum, p) => sum + p.resources.monthlyCost, 0) * 0.58, { compact: true })} tooltip="CPU/GPU costs" />
-              <StatItem label="Storage" value={formatCurrency(platformProjects.reduce((sum, p) => sum + p.resources.monthlyCost, 0) * 0.25, { compact: true })} tooltip="Data storage" />
-              <StatItem label="Network" value={formatCurrency(platformProjects.reduce((sum, p) => sum + p.resources.monthlyCost, 0) * 0.17, { compact: true })} tooltip="Data transfer" />
+              <StatItem label="Compute" value={formatCurrency(d?.cost.compute ?? 0, { compact: true })} tooltip="CPU/GPU costs" />
+              <StatItem label="Storage" value={formatCurrency(d?.cost.storage ?? 0, { compact: true })} tooltip="Data storage" />
+              <StatItem label="Network" value={formatCurrency(d?.cost.network ?? 0, { compact: true })} tooltip="Data transfer" />
             </MainKPI>
           </div>
 
@@ -308,22 +295,22 @@ const Dashboard = () => {
                     <GitBranch className="h-3.5 w-3.5 text-info" />
                     <span className="text-xs font-medium">Pipelines</span>
                   </div>
-                  <span className="text-sm font-bold">{pipelines.length}</span>
+                  <span className="text-sm font-bold">{fmt(d?.pipelines.total)}</span>
                 </div>
               </CardHeader>
               <CardContent className="px-3 pb-2.5">
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1">
                     <CheckCircle className="h-3 w-3 text-success" />
-                    <span>{pipelines.filter(p => p.status === "active" || p.status === "completed").length} OK</span>
+                    <span>{fmt(d?.pipelines.ok)} OK</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="h-3 w-3 text-warning" />
-                    <span>{pipelines.filter(p => p.status === "paused").length} Paused</span>
+                    <span>{fmt(d?.pipelines.pending)} Pending</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <AlertTriangle className="h-3 w-3 text-destructive" />
-                    <span>{pipelines.filter(p => p.status === "failed").length} Failed</span>
+                    <span>{fmt(d?.pipelines.failed)} Failed</span>
                   </div>
                 </div>
               </CardContent>
@@ -338,15 +325,15 @@ const Dashboard = () => {
                     <span className="text-xs font-medium">System Health</span>
                   </div>
                   <Badge variant="outline" className="text-xs text-success border-success/30 px-1.5 py-0">
-                    Healthy
+                    {d?.dbHealthy === false ? "Degraded" : "Healthy"}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="px-3 pb-2.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span><Database className="h-3 w-3 inline mr-1 text-success" />DB: OK</span>
-                  <span><Zap className="h-3 w-3 inline mr-1 text-success" />API: 99.9%</span>
-                  <span><Activity className="h-3 w-3 inline mr-1 text-success" />45ms</span>
+                  <span><Database className="h-3 w-3 inline mr-1 text-success" />DB: {d?.dbHealthy === false ? "Issues" : "OK"}</span>
+                  <span><Zap className="h-3 w-3 inline mr-1 text-success" />Clusters: {fmt(d?.clusters.ready)}/{fmt(d?.clusters.total)}</span>
+                  <span><Activity className="h-3 w-3 inline mr-1 text-warning" />Degraded: {fmt(d?.clusters.degraded)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -357,17 +344,18 @@ const Dashboard = () => {
             <Card className="glass-card border-border/50">
               <CardHeader className="pb-1.5 pt-2.5 px-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium">Top Performing</span>
+                  <span className="text-xs font-medium">Recent Projects</span>
                   <Button variant="ghost" size="sm" className="h-5 text-xs px-1.5" onClick={() => navigate("/projects")}>
                     View all <ChevronRight className="h-3 w-3" />
                   </Button>
                 </div>
               </CardHeader>
               <CardContent className="px-3 pb-2.5 space-y-1">
-                {platformProjects.filter(p => p.status === "active").slice(0, 3).map((p) => (
+                {projects.length === 0 && <p className="text-xs text-muted-foreground">No projects yet</p>}
+                {projects.slice(0, 3).map((p: any) => (
                   <Link key={p.id} to={`/projects/${p.id}`} className="flex items-center justify-between text-xs hover:text-primary">
                     <span className="text-foreground truncate">{p.name}</span>
-                    <span className="text-success">{p.progress}%</span>
+                    <span className="text-muted-foreground">{p.lifecycle_status}</span>
                   </Link>
                 ))}
               </CardContent>
@@ -383,6 +371,7 @@ const Dashboard = () => {
                 </div>
               </CardHeader>
               <CardContent className="px-3 pb-2.5 space-y-1">
+                {activities.length === 0 && <p className="text-xs text-muted-foreground">No activity yet</p>}
                 {activities.slice(0, 3).map((a) => (
                   <div key={a.id} className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5">
@@ -399,22 +388,17 @@ const Dashboard = () => {
               <CardHeader className="pb-1.5 pt-2.5 px-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium">Active Alerts</span>
-                  <Badge variant="destructive" className="text-xs px-1.5 py-0">3</Badge>
+                  <Badge variant="destructive" className="text-xs px-1.5 py-0">{d?.alerts.length ?? 0}</Badge>
                 </div>
               </CardHeader>
               <CardContent className="px-3 pb-2.5 space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-destructive truncate">High latency detected</span>
-                  <Badge variant="destructive" className="px-1 py-0 text-xs">Crit</Badge>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-warning truncate">Data drift warning</span>
-                  <Badge variant="outline" className="px-1 py-0 text-xs text-warning border-warning/30">Warn</Badge>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground truncate">GPU quota 80%</span>
-                  <Badge variant="secondary" className="px-1 py-0 text-xs">Info</Badge>
-                </div>
+                {(d?.alerts ?? []).length === 0 && <p className="text-xs text-muted-foreground">No active alerts</p>}
+                {(d?.alerts ?? []).slice(0, 3).map((al: any) => (
+                  <div key={al.id} className="flex items-center justify-between text-xs">
+                    <span className={cn("truncate", al.level === "crit" ? "text-destructive" : al.level === "warn" ? "text-warning" : "text-muted-foreground")}>{al.label}</span>
+                    <Badge variant={al.level === "crit" ? "destructive" : al.level === "warn" ? "outline" : "secondary"} className="px-1 py-0 text-xs">{al.level === "crit" ? "Crit" : al.level === "warn" ? "Warn" : "Info"}</Badge>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           </div>
@@ -442,36 +426,18 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent className="px-4 pb-3">
               <div className="space-y-2">
-                {platformProjects.map((project) => (
-                  <div 
-                    key={project.id} 
-                    className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
-                    onClick={() => navigate(`/projects/${project.id}`)}
-                  >
+                {projects.length === 0 && <p className="text-xs text-muted-foreground">No projects yet. Create one from the Projects page.</p>}
+                {projects.map((project: any) => (
+                  <div key={project.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors" onClick={() => navigate(`/projects/${project.id}`)}>
                     <div className="flex items-center gap-3">
-                      <div className="p-1.5 rounded-lg bg-primary/10">
-                        <FolderKanban className="h-4 w-4 text-primary" />
-                      </div>
+                      <div className="p-1.5 rounded-lg bg-primary/10"><FolderKanban className="h-4 w-4 text-primary" /></div>
                       <div>
                         <p className="text-sm font-medium text-foreground">{project.name}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span>{project.modelIds.length} models</span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <Users className="h-3 w-3" />
-                            {project.team.length}
-                          </span>
-                        </div>
+                        <p className="text-xs text-muted-foreground truncate max-w-md">{project.description ?? `Criticality: ${project.criticality}`}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="text-sm font-semibold text-success">{project.progress}%</p>
-                        <p className="text-xs text-muted-foreground">progress</p>
-                      </div>
-                      <Badge variant={project.status === "active" ? "default" : "secondary"} className="text-xs">
-                        {project.status}
-                      </Badge>
+                      <Badge variant={project.lifecycle_status === "active" ? "default" : "secondary"} className="text-xs">{project.lifecycle_status}</Badge>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     </div>
                   </div>
@@ -497,6 +463,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent className="px-4 pb-3">
               <div className="space-y-2">
+                {activities.length === 0 && <p className="text-xs text-muted-foreground">No activity recorded yet</p>}
                 {activities.map((activity) => (
                   <div key={activity.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30">
                     <div className="flex items-center gap-3">
