@@ -38,6 +38,7 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [resetCooldown, setResetCooldown] = useState(0);
   const { user, signIn, signUp, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -112,6 +113,10 @@ const Auth = () => {
   };
 
   const handleForgot = async () => {
+    if (resetCooldown > 0) {
+      toast.info(`Reset email already sent. Check your inbox (and spam). You can resend in ${resetCooldown}s.`);
+      return;
+    }
     try {
       emailSchema.parse(email);
     } catch {
@@ -121,9 +126,25 @@ const Auth = () => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
-    if (error) toast.error(error.message);
-    else toast.success("Password reset email sent. Check your inbox.");
+    if (error) {
+      const wait = error.message.match(/after (\d+) seconds/);
+      if (wait) {
+        setResetCooldown(Number(wait[1]));
+        toast.info(`A reset email was just sent. Check your inbox (and spam). You can resend in ${wait[1]}s.`);
+      } else {
+        toast.error(error.message);
+      }
+    } else {
+      setResetCooldown(60);
+      toast.success("Password reset email sent. Check your inbox (and spam folder).");
+    }
   };
+
+  useEffect(() => {
+    if (resetCooldown <= 0) return;
+    const t = setTimeout(() => setResetCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resetCooldown]);
 
   if (loading) {
     return (

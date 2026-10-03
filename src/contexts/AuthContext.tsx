@@ -25,6 +25,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        // If the reset link lands on another page (e.g. Supabase Site URL), send the user to the reset form
+        if (event === "PASSWORD_RECOVERY" && window.location.pathname !== "/reset-password") {
+          window.location.assign("/reset-password");
+        }
       }
     );
 
