@@ -33,9 +33,12 @@ import {
   Coins,
 } from "lucide-react";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { useNavigate } from "react-router-dom";
+import { ProfileSection, SecuritySection, NotificationsSection, ApiKeysSection, ThemeButtons } from "@/components/settings/SettingsSections";
 
 const Settings = () => {
   const { currency, setCurrency, currencies, formatCurrency, getSymbol } = useCurrency();
+  const navigate = useNavigate();
 
   return (
     <DashboardLayout>
@@ -74,39 +77,7 @@ const Settings = () => {
                   Profile Information
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-lg font-bold text-primary">
-                    SC
-                  </div>
-                  <div>
-                    <Button variant="outline" size="sm">Change Avatar</Button>
-                    <p className="text-xs text-muted-foreground mt-1">JPG, PNG or GIF. Max 2MB</p>
-                  </div>
-                </div>
-                <Separator />
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">First Name</Label>
-                    <Input defaultValue="Sarah" className="h-9" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Last Name</Label>
-                    <Input defaultValue="Chen" className="h-9" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Email</Label>
-                    <Input defaultValue="sarah.chen@company.com" type="email" className="h-9" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Department</Label>
-                    <Input defaultValue="Data Science" className="h-9" />
-                  </div>
-                </div>
-                <div className="flex justify-end">
-                  <Button variant="premium" size="sm">Save Changes</Button>
-                </div>
-              </CardContent>
+              <CardContent><ProfileSection /></CardContent>
             </Card>
           </TabsContent>
 
@@ -119,35 +90,7 @@ const Settings = () => {
                   Security Settings
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                  <div className="flex items-center gap-3">
-                    <Key className="h-4 w-4 text-primary" />
-                    <div>
-                      <p className="font-medium text-sm">Two-Factor Authentication</p>
-                      <p className="text-xs text-muted-foreground">Extra security layer</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="success" className="text-xs">Enabled</Badge>
-                    <Switch defaultChecked />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                  <div>
-                    <p className="font-medium text-sm">Password</p>
-                    <p className="text-xs text-muted-foreground">Changed 30 days ago</p>
-                  </div>
-                  <Button variant="outline" size="sm">Change</Button>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                  <div>
-                    <p className="font-medium text-sm">Active Sessions</p>
-                    <p className="text-xs text-muted-foreground">3 devices logged in</p>
-                  </div>
-                  <Button variant="outline" size="sm">Manage</Button>
-                </div>
-              </CardContent>
+              <CardContent><SecuritySection /></CardContent>
             </Card>
           </TabsContent>
 
@@ -160,21 +103,7 @@ const Settings = () => {
                   Notification Preferences
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                {[
-                  { title: "Experiment Completed", enabled: true },
-                  { title: "Model Deployed", enabled: true },
-                  { title: "Drift Detected", enabled: true },
-                  { title: "Team Activity", enabled: false },
-                  { title: "Weekly Reports", enabled: true },
-                  { title: "Security Alerts", enabled: true },
-                ].map((notif, i) => (
-                  <div key={i} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30">
-                    <p className="text-sm">{notif.title}</p>
-                    <Switch defaultChecked={notif.enabled} />
-                  </div>
-                ))}
-              </CardContent>
+              <CardContent><NotificationsSection /></CardContent>
             </Card>
           </TabsContent>
 
@@ -198,7 +127,7 @@ const Settings = () => {
                       </span>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => navigate("/finops")}>
                     Manage <ExternalLink className="h-3 w-3 ml-1" />
                   </Button>
                 </div>
@@ -238,28 +167,8 @@ const Settings = () => {
                   <Key className="h-4 w-4 text-primary" />
                   API Keys
                 </CardTitle>
-                <Button variant="premium" size="sm">Create Key</Button>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {[
-                    { name: "Production API Key", key: "fed_prod_*****_x7k2", lastUsed: "2 hours ago" },
-                    { name: "Development Key", key: "fed_dev_*****_m3n1", lastUsed: "5 days ago" },
-                    { name: "CI/CD Pipeline", key: "fed_ci_*****_p9w4", lastUsed: "1 hour ago" },
-                  ].map((apiKey, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                      <div>
-                        <p className="font-medium text-sm">{apiKey.name}</p>
-                        <p className="text-xs font-mono text-muted-foreground">{apiKey.key}</p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs text-muted-foreground">{apiKey.lastUsed}</span>
-                        <Button variant="destructive" size="sm" className="h-7">Revoke</Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
+                </CardHeader>
+              <CardContent><ApiKeysSection /></CardContent>
             </Card>
           </TabsContent>
 
@@ -277,10 +186,7 @@ const Settings = () => {
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30">
                     <span className="text-sm">Theme</span>
-                    <div className="flex items-center gap-1">
-                      <Button variant="secondary" size="sm" className="h-7">Dark</Button>
-                      <Button variant="ghost" size="sm" className="h-7">Light</Button>
-                    </div>
+                    <ThemeButtons />
                   </div>
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30">
                     <span className="text-sm">Compact Mode</span>
