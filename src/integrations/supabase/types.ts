@@ -9199,6 +9199,10 @@ export type Database = {
       }
       current_tenant_id: { Args: never; Returns: string }
       current_user_id: { Args: never; Returns: string }
+      ensure_user_tenant: {
+        Args: { _email: string; _name: string; _user_id: string }
+        Returns: string
+      }
       get_current_tenant_id: { Args: never; Returns: string }
       get_current_user_id: { Args: never; Returns: string }
       get_user_role: {
