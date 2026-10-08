@@ -40,6 +40,7 @@ import AIGovernance from "./pages/AIGovernance";
 import UsersManagement from "./pages/governance/UsersManagement";
 import RolesManagement from "./pages/governance/RolesManagement";
 import PermissionsManagement from "./pages/governance/PermissionsManagement";
+import IncidentRemediation from "./pages/IncidentRemediation";
 
 const queryClient = new QueryClient();
 
@@ -88,7 +89,8 @@ const App = () => (
                 <Route path="/predictive-maintenance" element={<ProtectedRoute><PredictiveMaintenanceDashboard /></ProtectedRoute>} />
 
                 {/* AI Governance (EU AI Act) */}
-                <Route path="/ai-governance" element={<ProtectedRoute><AIGovernance /></ProtectedRoute>} />
+               <Route path="/ai-governance" element={<ProtectedRoute><AIGovernance /></ProtectedRoute>} />
+               <Route path="/incident-assistant" element={<ProtectedRoute><IncidentRemediation /></ProtectedRoute>} />
 
                 {/* Governance IAM Routes */}
                 <Route path="/governance/users" element={<ProtectedRoute><UsersManagement /></ProtectedRoute>} />

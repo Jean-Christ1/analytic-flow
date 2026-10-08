@@ -128,6 +128,7 @@ const contextualNav: Record<string, { title: string; createLabel?: string; creat
           { label: "Energy", icon: Gauge, href: "/energy" },
           { label: "Quality Control", icon: LineChart, href: "/quality-control" },
           { label: "Predictive Maint.", icon: Cpu, href: "/predictive-maintenance" },
+          { label: "Incident Assistant", icon: AlertTriangle, href: "/incident-assistant" },
         ],
       },
     ],
